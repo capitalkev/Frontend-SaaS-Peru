@@ -2,7 +2,7 @@ import * as React from "react";
 import { Layout } from "@/components/Layout";
 import { Route } from "@/components/Sidebar";
 import { DashboardView } from "@/components/views/DashboardView";
-import { NewOperationView } from "@/components/views/NewOperationView";
+import { NewOperationView } from "@/components/views/NewOperation/NewOperationView";
 import { OperationsView } from "@/components/views/OperationsView";
 import { OperationDetailView } from "@/components/views/OperationDetailView";
 import { ProfileView } from "@/components/views/ProfileView";

@@ -58,7 +58,7 @@ export function EmailInput({
     <div className="w-full">
       <div
         className={cn(
-          "flex flex-wrap items-center gap-2 min-h-[44px] w-full rounded-xl border bg-white px-3 py-2 text-sm ring-offset-background focus-within:ring-indigo-500 focus-within:ring-offset-2 transition-all duration-200",
+          "flex flex-wrap items-center gap-2 min-h-[44px] w-full rounded-xl border bg-white px-3 py-2 text-sm ring-offset-background focus-within:ring-brand-500 focus-within:ring-offset-2 transition-all duration-200",
           error ? "border-red-500 ring-red-200" : "border-slate-200",
           disabled && "opacity-50 cursor-not-allowed",
           className
@@ -67,14 +67,14 @@ export function EmailInput({
         {value.map((email) => (
           <span
             key={email}
-            className="inline-flex items-center gap-1 rounded-full bg-indigo-50 px-2.5 py-0.5 text-xs font-medium text-indigo-700 border border-indigo-100"
+            className="inline-flex items-center gap-1.5 rounded-md bg-sky-50 px-2.5 py-1.5 text-xs font-semibold text-sky-700 border border-sky-200 shadow-sm"
           >
             {email}
             {!disabled && (
               <button
                 type="button"
                 onClick={() => removeEmail(email)}
-                className="ml-1 rounded-full hover:bg-indigo-200 p-0.5 transition-colors"
+                className="ml-0.5 rounded-sm hover:bg-sky-200 hover:text-sky-900 p-0.5 transition-colors"
               >
                 <X className="h-3 w-3" />
               </button>
