@@ -1,5 +1,7 @@
+// src/lib/api.ts
 
-// Definimos la estructura de los datos que esperamos del backend
+// --- Interfaces Existentes ---
+
 export interface ExtractedDocument {
   document_id: string;
   issue_date: string;
@@ -15,93 +17,132 @@ export interface ExtractedDocument {
   source_filename: string;
 }
 
+export interface FrontendData {
+  condiciones: {
+    tasa: number;
+    comision: number;
+  };
+  notificaciones: {
+    nombre_cliente: string;
+    ruc_cliente: string;
+    correo_remitente: string;
+    envio_conjunto: boolean;
+    emails_globales: string[];
+    deudores: { 
+      id: string; 
+      nombre: string; 
+      emails: string[];
+      documentos: ExtractedDocument[];
+      sustentos: string[]; 
+    }[];
+  };
+  cierre: {
+    comentario: string;
+    solicita_adelanto: boolean;
+    porcentaje_adelanto: number;
+    cuenta_desembolso: {
+      banco: string;
+      tipo_cuenta: string;
+      moneda: string;
+      numero_cuenta: string;
+    };
+  };
+}
+
+// --- Configuración de Base URL ---
+const API_BASE_URL = "http://127.0.0.1:8000";
+
+// --- Funciones de Extracción y Procesamiento ---
+
 export async function extractDebtors(files: File[]): Promise<ExtractedDocument[]> {
   const formData = new FormData();
   files.forEach(file => {
     formData.append("xml_files", file);
   });
 
-  const response = await fetch("http://127.0.0.1:8000/robot/extraer-deudores", {
+  const response = await fetch(`${API_BASE_URL}/robot/extraer-deudores`, {
     method: "POST",
     body: formData,
   });
-
 
   if (!response.ok) {
     const errorText = await response.text();
     throw new Error(`Error del servidor: ${response.status} - ${errorText}`);
   }
 
-  // Devolvemos el JSON de la respuesta
   return response.json();
 }
 
-export interface FrontendData {
-    condiciones: {
-      tasa: number;
-      comision: number;
-    };
-    notificaciones: {
-      nombre_cliente: string;
-      ruc_cliente: string;
-      correo_remitente: string;
-      envio_conjunto: boolean;
-      emails_globales: string[];
-      deudores: { 
-        id: string; 
-        nombre: string; 
-        emails: string[];
-        documentos: ExtractedDocument[];
-        sustentos: string[]; 
-      }[];
-    };
-    cierre: {
-      comentario: string;
-      solicita_adelanto: boolean;
-      porcentaje_adelanto: number;
-      cuenta_desembolso: {
-        banco: string;
-        tipo_cuenta: string;
-        moneda: string;
-        numero_cuenta: string;
-      };
-    };
+export async function processOperation(
+  frontendData: FrontendData,
+  xmlFiles: File[],
+  sustentos: File[],
+  additionalDocs: File[]
+): Promise<any> {
+  const formData = new FormData();
+  formData.append('data_frontend', JSON.stringify(frontendData));
+
+  xmlFiles.forEach(file => formData.append('xml_files', file));
+  sustentos.forEach(file => formData.append('pdf_files', file));
+  additionalDocs.forEach(file => formData.append('respaldo_files', file));
+
+  const response = await fetch(`${API_BASE_URL}/robot/procesar-completa`, {
+    method: 'POST',
+    body: formData,
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Error del servidor: ${response.status} - ${errorText}`);
   }
-  
-  export async function processOperation(
-    frontendData: FrontendData,
-    xmlFiles: File[],
-    sustentos: File[],
-    additionalDocs: File[]
-  ): Promise<any> {
-    const formData = new FormData();
-  
-    formData.append('data_frontend', JSON.stringify(frontendData));
-  
-    // 2. Adjuntar los archivos XML
-    xmlFiles.forEach(file => {
-      formData.append('xml_files', file);
-    });
-  
-    // 3. Adjuntar los archivos de sustento (PDFs)
-    sustentos.forEach(file => {
-      formData.append('pdf_files', file);
-    });
-  
-    // 4. Adjuntar los documentos adicionales/respaldo
-    additionalDocs.forEach(file => {
-      formData.append('respaldo_files', file);
-    });
-  
-    const response = await fetch("http://127.0.0.1:8000/robot/procesar-completa", {
-      method: 'POST',
-      body: formData,
-    });
-  
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`Error del servidor: ${response.status} - ${errorText}`);
-    }
-  
-    return response.json();
+
+  return response.json();
+}
+
+/**
+ * Obtiene todas las operaciones asociadas a un correo electrónico.
+ * @param gmail Correo del usuario
+ */
+export async function getOperations(gmail: string): Promise<any> {
+  const response = await fetch(`${API_BASE_URL}/operaciones/${gmail}`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Error al obtener operaciones: ${response.status} - ${errorText}`);
   }
+
+  return response.json();
+}
+
+/**
+ * Obtiene el detalle de las facturas de una operación específica.
+ * @param idOperacion ID único de la operación
+ */
+export async function getFacturasByOperation(idOperacion: string): Promise<any> {
+  const response = await fetch(`${API_BASE_URL}/operaciones/facturas/${idOperacion}`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Error al obtener facturas: ${response.status} - ${errorText}`);
+  }
+  const data = await response.json();
+  console.log(data);
+  return data;
+}
+
+// Exportación unificada para facilitar el uso en componentes
+export const api = {
+  extractDebtors,
+  processOperation,
+  getOperations,
+  getFacturasByOperation,
+};
