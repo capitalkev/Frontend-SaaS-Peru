@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dropzone } from "@/components/ui/dropzone";
 import { Toggle } from "@/components/ui/toggle";
-import { DollarSign, Percent, ChevronLeft, FileText, X } from "lucide-react";
+import { DollarSign, Percent, ChevronLeft, FileText, X, MessageSquare } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface Step3Props {
   comentario: string;
@@ -41,23 +42,38 @@ export function Step3Closure({
     setAdditionalDocs(prev => prev.filter((_, i) => i !== indexToRemove));
   };
 
+  // Clases compartidas para el foco personalizado de los selects
+  const selectClasses = "flex h-11 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm transition-all duration-200 focus-visible:outline-none focus-visible:border-brand-500 focus-visible:ring-4 focus-visible:ring-brand-500/10";
+
   return (
     <div className="space-y-6">
       <Card>
-        <CardHeader>
+        <CardHeader className="pb-4">
           <CardTitle>Cierre y Envío</CardTitle>
-          <p className="text-slate-500">Agregar Comentario a la operacion.</p>
-          <div className="space-y-2 mt-2">
-            <Input 
-              placeholder="Comentario (opcional)"
+          <p className="text-slate-500 text-sm">Completa los últimos detalles para registrar la operación.</p>
+        </CardHeader>
+        
+        <CardContent className="space-y-8">
+          {/* Área de Comentario Mejorada */}
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-slate-700 flex items-center gap-2">
+              <MessageSquare className="h-4 w-4 text-brand-500" />
+              Comentario de la Operación <span className="text-red-500">*</span>
+            </label>
+            <textarea 
+              placeholder="Ingresa los detalles, condiciones especiales o notas importantes sobre esta operación..."
               value={comentario}
               onChange={(e) => setComentario(e.target.value)}
+              className={cn(
+                "flex w-full min-h-[100px] resize-none rounded-xl border border-slate-200 bg-slate-50/50 p-3 text-sm text-slate-700 transition-all duration-200",
+                "placeholder:text-slate-400",
+                "focus-visible:bg-white focus-visible:outline-none focus-visible:border-brand-500 focus-visible:ring-4 focus-visible:ring-brand-500/10"
+              )}
             />
           </div>
-        </CardHeader>
-        <CardContent className="space-y-6">
+
           {/* Respaldos Adicionales */}
-          <div>
+          <div className="pt-2 border-t border-slate-100">
             <label className="text-sm font-medium text-slate-700 mb-2 block">Documentos Adicionales (Opcional)</label>
             <Dropzone 
               onDrop={(acceptedFiles) => setAdditionalDocs(prev => [...prev, ...acceptedFiles])}
@@ -123,11 +139,7 @@ export function Step3Closure({
             <label className="text-sm font-medium text-slate-700">Cuenta de Desembolso *</label>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div className="space-y-2">
-                <select 
-                  value={bank}
-                  onChange={(e) => setBank(e.target.value)}
-                  className="flex h-11 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
-                >
+                <select value={bank} onChange={(e) => setBank(e.target.value)} className={selectClasses}>
                   <option value="" disabled>Seleccione Banco...</option>
                   <option value="BCP">BCP</option>
                   <option value="Interbank">Interbank</option>
@@ -142,11 +154,7 @@ export function Step3Closure({
               </div>
 
               <div className="space-y-2">
-                <select 
-                  value={accountType}
-                  onChange={(e) => setAccountType(e.target.value)}
-                  className="flex h-11 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
-                >
+                <select value={accountType} onChange={(e) => setAccountType(e.target.value)} className={selectClasses}>
                   <option value="" disabled>Seleccione Cuenta</option>
                   <option value="Corriente">Corriente</option>
                   <option value="Ahorros">Ahorros</option>
@@ -154,11 +162,7 @@ export function Step3Closure({
               </div>
 
               <div className="space-y-2">
-                <select 
-                  value={currency}
-                  onChange={(e) => setCurrency(e.target.value)}
-                  className="flex h-11 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
-                >
+                <select value={currency} onChange={(e) => setCurrency(e.target.value)} className={selectClasses}>
                   <option value="" disabled>Moneda</option>
                   <option value="Soles">Soles</option>
                   <option value="Dolares">Dólares</option>
@@ -176,8 +180,8 @@ export function Step3Closure({
             </div>
           </div>
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm relative" role="alert">
-              <strong className="font-bold">Error: </strong>
+            <div className="bg-blue-50 border border-blue-200 text-blue-800 px-4 py-3 rounded-lg text-sm relative mt-4" role="alert">
+              <strong className="font-bold">Aviso: </strong>
               <span>{error}</span>
             </div>
           )}

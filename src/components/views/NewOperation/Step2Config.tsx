@@ -163,8 +163,8 @@ export function Step2Config({
           </div>
 
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm mt-4" role="alert">
-              <strong className="font-bold">Error: </strong>
+            <div className="bg-blue-50 border border-blue-200 text-blue-800 px-4 py-3 rounded-lg text-sm mt-4">
+              <strong className="font-bold">Aviso: </strong>
               <span>{error}</span>
             </div>
           )}

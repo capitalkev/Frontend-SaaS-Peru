@@ -90,6 +90,16 @@ export function NewOperationView({ onFinish }: { onFinish: () => void }) {
   const handleBack = () => setStep((prev) => Math.max(prev - 1, 1));
 
   const handleFinish = async () => {
+    if (!comentario.trim()) {
+      setError("El comentario de la operación es obligatorio.");
+      return;
+    }
+
+    if (!bank || !accountType || !currency || !accountNumber.trim()) {
+      setError("Todos los campos de la Cuenta de Desembolso son obligatorios.");
+      return;
+    }
+
     setLoading(true);
     setError(null);
 
@@ -109,9 +119,15 @@ export function NewOperationView({ onFinish }: { onFinish: () => void }) {
         })),
       },
       cierre: {
-        comentario: comentario, solicita_adelanto: requestAdvance,
+        comentario: comentario, 
+        solicita_adelanto: requestAdvance,
         porcentaje_adelanto: requestAdvance ? parseFloat(advancePercent) || 0 : 0,
-        cuenta_desembolso: { banco: bank, tipo_cuenta: accountType, moneda: currency, numero_cuenta: accountNumber },
+        cuenta_desembolso: { 
+          banco: bank, 
+          tipo_cuenta: accountType, 
+          moneda: currency, 
+          numero_cuenta: accountNumber 
+        },
       },
     };
 

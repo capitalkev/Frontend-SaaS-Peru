@@ -57,10 +57,10 @@ export function Step1Upload({ xmlFiles, isExtracting, error, onDrop, onRemove, o
         )}
         
         {error && !isExtracting && (
-          <div className="mt-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm" role="alert">
-            <strong className="font-bold">Error: </strong>
-            <span>{error}</span>
-          </div>
+          <div className="bg-blue-50 border border-blue-200 text-blue-800 px-4 py-3 rounded-lg text-sm mt-4">
+              <strong className="font-bold">Aviso: </strong>
+              <span>{error}</span>
+            </div>
         )}
         
         <div className="mt-6 pt-4 border-t border-slate-100 flex justify-end">
