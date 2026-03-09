@@ -3,6 +3,7 @@ import { api } from '../../lib/api';
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
+import { useAuth } from '@/context/AuthContext';
 import { 
   Search, 
   MoreHorizontal, 
@@ -37,16 +38,19 @@ const STATUS_CONFIG: Record<string, { label: string; color: string; icon: any }>
   "Cerrado": { label: "Cerrado", color: "bg-zinc-100 text-zinc-700 border-zinc-200 hover:bg-zinc-200", icon: CheckCircle2 },
 };
 
-// Actualizamos la interfaz de props para mandar tanto el ID (para la BD) como el Código (para el Título visual)
 export const OperationsView = ({ onNavigateToDetail }: { onNavigateToDetail?: (id: string | number, codigo: string) => void }) => {
   const [operations, setOperations] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  
+  const { user } = useAuth();
 
   useEffect(() => {
     const loadData = async () => {
+      if (!user?.email) return;
       try {
-        const data = await api.getOperations("kevin.tupac@capitalexpress.cl");
+        setLoading(true);
+        const data = await api.getOperations(user.email);
         setOperations(Array.isArray(data) ? data : [data]);
       } catch (error) {
         console.error("Error:", error);
@@ -55,7 +59,7 @@ export const OperationsView = ({ onNavigateToDetail }: { onNavigateToDetail?: (i
       }
     };
     loadData();
-  }, []);
+  }, [user]);
 
   const filteredOps = operations.filter(op => {
     return op.nombre_cliente?.toLowerCase().includes(searchTerm.toLowerCase()) ||

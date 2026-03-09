@@ -1,63 +1,117 @@
-import * as React from "react";
+import { Routes, Route, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { Layout } from "@/components/Layout";
-import { Route } from "@/components/Sidebar";
 import { DashboardView } from "@/components/views/DashboardView";
 import { NewOperationView } from "@/components/views/NewOperation/NewOperationView";
 import { OperationsView } from "@/components/views/OperationsView";
 import { OperationDetailView } from "@/components/views/OperationDetailView";
 import { ProfileView } from "@/components/views/ProfileView";
+import { LoginView } from "@/components/views/LoginView";
+import { useAuth } from "@/context/AuthContext";
+
+// Componente guardián
+function ProtectedRoute({ children }: { children: React.ReactNode }) {
+  const { user } = useAuth();
+  if (!user) return <Navigate to="/login" replace />;
+  return <>{children}</>;
+}
 
 export default function App() {
-  const [currentRoute, setCurrentRoute] = React.useState<Route>("dashboard");
-  // CAMBIO 1: Guardamos un objeto con el ID (para la API) y el Código (para el título)
-  const [selectedOp, setSelectedOp] = React.useState<{ id: string, codigo: string } | null>(null);
+  const location = useLocation();
+  const navigate = useNavigate();
 
-  const handleNavigate = (route: Route) => {
-    setCurrentRoute(route);
-    if (route !== "operation-detail") {
-      setSelectedOp(null);
-    }
-  };
-
-  // CAMBIO 2: Recibimos ambos valores
-  const handleNavigateToDetail = (id: string | number, codigo: string) => {
-    setSelectedOp({ id: String(id), codigo });
-    setCurrentRoute("operation-detail");
-  };
-
+  // Helper para títulos del Header
   const getHeaderTitle = () => {
-    switch (currentRoute) {
-      case "dashboard": return undefined;
-      case "operations": return "Mis Operaciones";
-      case "new-operation": return "Nueva Operación";
-      case "profile": return "Perfil y Scoring";
-      case "operation-detail": return "Detalle de Operación";
+    if (location.pathname.includes('/operacion/')) return "Detalle de Operación";
+    switch (location.pathname) {
+      case "/": return undefined;
+      case "/operaciones": return "Mis Operaciones";
+      case "/nueva-operacion": return "Nueva Operación";
+      case "/perfil": return "Perfil y Scoring";
       default: return undefined;
     }
   };
 
+  // Convertimos rutas de URL al tipo esperado por tu Sidebar
+  const getCurrentRouteLabel = () => {
+    if (location.pathname.includes('/operacion/')) return "operation-detail";
+    if (location.pathname === '/operaciones') return "operations";
+    if (location.pathname === '/nueva-operacion') return "new-operation";
+    if (location.pathname === '/perfil') return "profile";
+    return "dashboard";
+  };
+
+  const handleNavigateSidebar = (route: string) => {
+    const paths = {
+      "dashboard": "/",
+      "operations": "/operaciones",
+      "new-operation": "/nueva-operacion",
+      "profile": "/perfil",
+    };
+    navigate(paths[route as keyof typeof paths] || "/");
+  };
+
   return (
-    <Layout 
-      currentRoute={currentRoute} 
-      onNavigate={handleNavigate}
-      headerTitle={getHeaderTitle()}
-    >
-      {currentRoute === "dashboard" && <DashboardView />}
-      {currentRoute === "new-operation" && (
-        <NewOperationView onFinish={() => handleNavigate("operations")} />
-      )}
-      {currentRoute === "operations" && (
-        <OperationsView onNavigateToDetail={handleNavigateToDetail} />
-      )}
-      {/* CAMBIO 3: Pasamos ambos valores al detalle */}
-      {currentRoute === "operation-detail" && selectedOp && (
-        <OperationDetailView 
-          operationId={selectedOp.id} 
-          operationCode={selectedOp.codigo} 
-          onBack={() => handleNavigate("operations")} 
-        />
-      )}
-      {currentRoute === "profile" && <ProfileView />}
-    </Layout>
+    <Routes>
+      {/* Ruta Pública */}
+      <Route path="/login" element={<LoginView />} />
+
+      {/* Rutas Protegidas enrutadas dentro de tu Layout */}
+      <Route path="/" element={
+        <ProtectedRoute>
+          <Layout 
+            currentRoute={getCurrentRouteLabel()} 
+            onNavigate={handleNavigateSidebar}
+            headerTitle={getHeaderTitle()}
+          >
+            <DashboardView />
+          </Layout>
+        </ProtectedRoute>
+      } />
+      
+      <Route path="/operaciones" element={
+        <ProtectedRoute>
+          <Layout currentRoute="operations" onNavigate={handleNavigateSidebar} headerTitle="Mis Operaciones">
+            {/* onNavigateToDetail ahora usa react-router */}
+            <OperationsView onNavigateToDetail={(id, codigo) => navigate(`/operacion/${id}?codigo=${codigo}`)} />
+          </Layout>
+        </ProtectedRoute>
+      } />
+
+      <Route path="/operacion/:id" element={
+        <ProtectedRoute>
+          <Layout currentRoute="operation-detail" onNavigate={handleNavigateSidebar} headerTitle="Detalle de Operación">
+            <OperationDetailWrapper />
+          </Layout>
+        </ProtectedRoute>
+      } />
+
+      <Route path="/nueva-operacion" element={
+        <ProtectedRoute>
+          <Layout currentRoute="new-operation" onNavigate={handleNavigateSidebar} headerTitle="Nueva Operación">
+            <NewOperationView onFinish={() => navigate("/operaciones")} />
+          </Layout>
+        </ProtectedRoute>
+      } />
+
+      <Route path="/perfil" element={
+        <ProtectedRoute>
+          <Layout currentRoute="profile" onNavigate={handleNavigateSidebar} headerTitle="Perfil y Scoring">
+            <ProfileView />
+          </Layout>
+        </ProtectedRoute>
+      } />
+    </Routes>
   );
+}
+
+import { useParams, useSearchParams } from "react-router-dom";
+function OperationDetailWrapper() {
+  const { id } = useParams();
+  const [searchParams] = useSearchParams();
+  const codigo = searchParams.get("codigo") || "Operación";
+  const navigate = useNavigate();
+
+  if (!id) return <div>ID inválido</div>;
+
+  return <OperationDetailView operationId={id} operationCode={codigo} onBack={() => navigate('/operaciones')} />;
 }

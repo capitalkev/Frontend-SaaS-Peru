@@ -1,6 +1,6 @@
-// src/lib/api.ts
+import { auth } from '@/config/firebase';
 
-// --- Interfaces Existentes ---
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
 
 export interface ExtractedDocument {
   document_id: string;
@@ -49,14 +49,51 @@ export interface FrontendData {
   };
 }
 
-// --- Configuración de Base URL ---
-const API_BASE_URL = "http://127.0.0.1:8000";
+async function getAuthHeaders(isFormData = false): Promise<HeadersInit> {
+  const user = auth.currentUser;
+  if (!user) throw new Error("No hay usuario autenticado en Firebase");
+  
+  const token = await user.getIdToken();
+  const headers: Record<string, string> = {
+    "Authorization": `Bearer ${token}`
+  };
 
-// --- Funciones de Extracción y Procesamiento ---
+  if (!isFormData) {
+    headers["Content-Type"] = "application/json";
+  }
+
+  return headers;
+}
+
+export async function syncUser(firebaseToken: string, nombre: string) {
+  const formData = new FormData();
+  formData.append("firebase_token", firebaseToken);
+  if (nombre) formData.append("nombre", nombre);
+
+  const response = await fetch(`${API_BASE_URL}/auth/sync`, {
+    method: "POST",
+    body: formData, 
+  });
+  if (!response.ok) throw new Error("Fallo al sincronizar usuario");
+  return response.json();
+}
+
+export async function getMe() {
+  const headers = await getAuthHeaders();
+  const response = await fetch(`${API_BASE_URL}/auth/me`, { 
+    method: "GET",
+    headers 
+  });
+  if (!response.ok) throw new Error("No autorizado");
+  return response.json();
+}
+
+// --- Endpoints de Negocio ---
 
 export async function extractDebtors(
   files: File[],
 ): Promise<ExtractedDocument[]> {
+  const headers = await getAuthHeaders(true); 
   const formData = new FormData();
   files.forEach((file) => {
     formData.append("xml_files", file);
@@ -64,6 +101,7 @@ export async function extractDebtors(
 
   const response = await fetch(`${API_BASE_URL}/robot/extraer-deudores`, {
     method: "POST",
+    headers,
     body: formData,
   });
 
@@ -81,6 +119,7 @@ export async function processOperation(
   sustentos: File[],
   additionalDocs: File[],
 ): Promise<any> {
+  const headers = await getAuthHeaders(true);
   const formData = new FormData();
   formData.append("data_frontend", JSON.stringify(frontendData));
 
@@ -90,6 +129,7 @@ export async function processOperation(
 
   const response = await fetch(`${API_BASE_URL}/robot/procesar-completa`, {
     method: "POST",
+    headers,
     body: formData,
   });
 
@@ -106,18 +146,15 @@ export async function processOperation(
  * @param gmail Correo del usuario
  */
 export async function getOperations(gmail: string): Promise<any> {
+  const headers = await getAuthHeaders();
   const response = await fetch(`${API_BASE_URL}/operaciones/${gmail}`, {
     method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers,
   });
 
   if (!response.ok) {
     const errorText = await response.text();
-    throw new Error(
-      `Error al obtener operaciones: ${response.status} - ${errorText}`,
-    );
+    throw new Error(`Error al obtener operaciones: ${response.status} - ${errorText}`);
   }
 
   return response.json();
@@ -130,21 +167,20 @@ export async function getOperations(gmail: string): Promise<any> {
 export async function getFacturasByOperation(
   idOperacion: string,
 ): Promise<any> {
+  const headers = await getAuthHeaders();
   const response = await fetch(
     `${API_BASE_URL}/operaciones/facturas/${idOperacion}`,
     {
       method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers,
     },
   );
+  
   if (!response.ok) {
     const errorText = await response.text();
-    throw new Error(
-      `Error al obtener facturas: ${response.status} - ${errorText}`,
-    );
+    throw new Error(`Error al obtener facturas: ${response.status} - ${errorText}`);
   }
+  
   const data = await response.json();
   console.log(data);
   return data;
@@ -153,10 +189,12 @@ export async function getFacturasByOperation(
 export async function getContactos(
   ruc_deudor: string,
 ): Promise<{ email: string }[]> {
+  const headers = await getAuthHeaders();
   const response = await fetch(`${API_BASE_URL}/contactos/${ruc_deudor}`, {
     method: "GET",
-    headers: { "Content-Type": "application/json" },
+    headers,
   });
+  
   if (!response.ok) return []; // Retornamos array vacío si no hay contactos o hay error 404
   return response.json();
 }
@@ -165,17 +203,18 @@ export async function addContacto(
   ruc_deudor: string,
   email: string,
 ): Promise<any> {
+  const headers = await getAuthHeaders();
   const response = await fetch(
     `${API_BASE_URL}/contactos/${ruc_deudor}/${email}`,
     {
       method: "POST",
+      headers,
     },
   );
+  
   if (!response.ok) {
     const errorText = await response.text();
-    throw new Error(
-      `Error al agregar contacto: ${response.status} - ${errorText}`,
-    );
+    throw new Error(`Error al agregar contacto: ${response.status} - ${errorText}`);
   }
   return response.json();
 }
@@ -184,23 +223,26 @@ export async function deleteContacto(
   ruc_deudor: string,
   email: string,
 ): Promise<any> {
+  const headers = await getAuthHeaders();
   const response = await fetch(
     `${API_BASE_URL}/contactos/${ruc_deudor}/${email}`,
     {
       method: "DELETE",
+      headers,
     },
   );
+  
   if (!response.ok) {
     const errorText = await response.text();
-    throw new Error(
-      `Error al eliminar contacto: ${response.status} - ${errorText}`,
-    );
+    throw new Error(`Error al eliminar contacto: ${response.status} - ${errorText}`);
   }
   return response.json();
 }
 
 // Exportación unificada para facilitar el uso en componentes
 export const api = {
+  syncUser,
+  getMe,
   extractDebtors,
   processOperation,
   getOperations,

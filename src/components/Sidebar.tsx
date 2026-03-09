@@ -10,7 +10,9 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion } from "motion/react";
+import { useAuth } from "@/context/AuthContext";
 import { Button } from "./ui/button";
+
 
 export type Route = "dashboard" | "operations" | "new-operation" | "profile" | "operation-detail";
 
@@ -26,7 +28,7 @@ export function Sidebar({ currentRoute, onNavigate }: SidebarProps) {
     { id: "new-operation", label: "Nueva Operación", icon: PlusCircle },
     { id: "profile", label: "Perfil y Scoring", icon: UserCircle },
   ] as const;
-
+  const { logout } = useAuth();
   return (
     <aside className="fixed left-0 top-0 z-40 h-screen w-72 bg-white border-r border-navy-100 hidden md:flex flex-col shadow-xl shadow-navy-200/20">
       <div className="p-8 pb-4">
@@ -73,12 +75,15 @@ export function Sidebar({ currentRoute, onNavigate }: SidebarProps) {
       </nav>
 
       <div className="p-4 mt-auto">
-        <div className="flex items-center justify-between px-2 text-navy-500 hover:text-navy-900 cursor-pointer transition-colors">
+        <div 
+          onClick={logout} 
+          className="flex items-center justify-between px-2 text-navy-500 hover:text-rose-600 cursor-pointer transition-colors"
+        >
           <div className="flex items-center gap-2 text-sm font-medium">
             <LogOut className="h-4 w-4" />
             <span>Cerrar Sesión</span>
           </div>
-          <span className="text-xs">v1.0.2</span>
+          <span className="text-xs text-slate-400">v1.0.2</span>
         </div>
       </div>
     </aside>
