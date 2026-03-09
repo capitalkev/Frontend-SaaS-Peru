@@ -1,5 +1,5 @@
 import * as React from "react";
-import { X } from "lucide-react";
+import { X, Mail } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface EmailInputProps {
@@ -13,7 +13,7 @@ interface EmailInputProps {
 export function EmailInput({
   value = [],
   onChange,
-  placeholder = "Ingresa correos...",
+  placeholder = "Escribe un correo y presiona Enter...",
   className,
   disabled,
 }: EmailInputProps) {
@@ -55,49 +55,61 @@ export function EmailInput({
   };
 
   return (
-    <div className="w-full">
+    <div className={cn("w-full", className)}>
       <div
         className={cn(
-          "flex flex-wrap items-center gap-2 min-h-[44px] w-full rounded-xl border bg-white px-3 py-2 text-sm ring-offset-background focus-within:ring-brand-500 focus-within:ring-offset-2 transition-all duration-200",
-          error ? "border-red-500 ring-red-200" : "border-slate-200",
-          disabled && "opacity-50 cursor-not-allowed",
-          className
+          "flex flex-col w-full rounded-xl border bg-white overflow-hidden transition-all duration-200",
+          error 
+            ? "border-red-500 ring-2 ring-red-100" 
+            : "border-slate-200 focus-within:border-brand-500 focus-within:ring-4 focus-within:ring-brand-500/10",
+          disabled && "opacity-50 cursor-not-allowed"
         )}
       >
-        {value.map((email) => (
-          <span
-            key={email}
-            className="inline-flex items-center gap-1.5 rounded-md bg-sky-50 px-2.5 py-1.5 text-xs font-semibold text-sky-700 border border-sky-200 shadow-sm"
-          >
-            {email}
-            {!disabled && (
-              <button
-                type="button"
-                onClick={() => removeEmail(email)}
-                className="ml-0.5 rounded-sm hover:bg-sky-200 hover:text-sky-900 p-0.5 transition-colors"
+        {/* ZONA SUPERIOR: Correos ya agregados */}
+        {value.length > 0 && (
+          <div className="flex flex-wrap items-center gap-2 p-3 border-b border-slate-100 bg-slate-50/80">
+            {value.map((email) => (
+              <span
+                key={email}
+                className="inline-flex items-center gap-1.5 rounded-lg bg-white px-2.5 py-1.5 text-xs font-medium text-slate-700 border border-slate-200 shadow-sm hover:border-slate-300 transition-colors"
               >
-                <X className="h-3 w-3" />
-              </button>
-            )}
-          </span>
-        ))}
-        <input
-          type="text"
-          value={inputValue}
-          onChange={(e) => {
-            setInputValue(e.target.value);
-            if (error) setError(false);
-          }}
-          onKeyDown={handleKeyDown}
-          onBlur={addEmail}
-          placeholder={value.length === 0 ? placeholder : ""}
-          className="flex-1 bg-transparent outline-none placeholder:text-slate-400 min-w-[120px]"
-          disabled={disabled}
-        />
+                {email}
+                {!disabled && (
+                  <button
+                    type="button"
+                    onClick={() => removeEmail(email)}
+                    className="ml-0.5 rounded-md text-slate-400 hover:bg-rose-50 hover:text-rose-600 p-0.5 transition-colors focus:outline-none"
+                    title="Quitar correo"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                )}
+              </span>
+            ))}
+          </div>
+        )}
+
+        <div className="flex items-center px-3 py-2.5 bg-white">
+          <Mail className="h-4 w-4 text-slate-400 mr-2 shrink-0" />
+          <input
+            type="text"
+            value={inputValue}
+            onChange={(e) => {
+              setInputValue(e.target.value);
+              if (error) setError(false);
+            }}
+            onKeyDown={handleKeyDown}
+            onBlur={addEmail}
+            placeholder={placeholder}
+            className="flex-1 bg-transparent text-sm outline-none placeholder:text-slate-400 text-slate-700 min-w-[200px]"
+            disabled={disabled}
+          />
+        </div>
       </div>
+
       {error && (
-        <p className="mt-1.5 text-xs text-red-500 font-medium">
-          Por favor ingresa un correo válido.
+        <p className="mt-1.5 text-xs text-red-500 font-medium flex items-center gap-1">
+          <X className="h-3 w-3" /> Por favor ingresa un formato de correo válido.
         </p>
       )}
     </div>

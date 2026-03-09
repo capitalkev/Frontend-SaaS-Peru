@@ -69,11 +69,14 @@ export function Step2Config({
             <CardTitle>Gestión de Notificaciones</CardTitle>
             <p className="text-sm text-slate-500">Configura a quién se enviarán los sustentos.</p>
           </div>
-          <Toggle checked={bulkSend} onCheckedChange={setBulkSend} label="Envío en Conjunto" />
+          {/* Solo mostramos el Toggle si hay más de 1 deudor */}
+          {debtors.length > 1 && (
+            <Toggle checked={bulkSend} onCheckedChange={setBulkSend} label="Envío en Conjunto" />
+          )}
         </CardHeader>
         <CardContent className="space-y-6">
           <AnimatePresence>
-            {bulkSend && (
+            {bulkSend && debtors.length > 1 && (
               <motion.div
                 initial={{ height: 0, opacity: 0 }}
                 animate={{ height: "auto", opacity: 1 }}
@@ -145,17 +148,20 @@ export function Step2Config({
                       </div>
                     )}
 
-                    {!bulkSend ? (
+                    {/* Mostramos el input bloqueado en lugar de desaparecerlo */}
+                    <div className="space-y-1">
                       <EmailInput 
                         value={debtor.emails} 
                         onChange={(emails) => updateDebtorEmails(debtor.id, emails)}
                         placeholder={`Correos para ${debtor.name}`}
+                        disabled={bulkSend && debtors.length > 1}
                       />
-                    ) : (
-                      <div className="h-[44px] flex items-center justify-center bg-slate-50 rounded-xl border border-dashed border-slate-300 text-xs text-slate-400 italic">
-                        Usando envío global
-                      </div>
-                    )}
+                      {bulkSend && debtors.length > 1 && (
+                        <p className="text-[10px] text-slate-400 pl-1 italic">
+                          Deshabilitado temporalmente. Se usará la lista de envío global.
+                        </p>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>

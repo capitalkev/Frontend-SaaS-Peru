@@ -28,12 +28,12 @@ export interface FrontendData {
     correo_remitente: string;
     envio_conjunto: boolean;
     emails_globales: string[];
-    deudores: { 
-      id: string; 
-      nombre: string; 
+    deudores: {
+      id: string;
+      nombre: string;
       emails: string[];
       documentos: ExtractedDocument[];
-      sustentos: string[]; 
+      sustentos: string[];
     }[];
   };
   cierre: {
@@ -54,9 +54,11 @@ const API_BASE_URL = "http://127.0.0.1:8000";
 
 // --- Funciones de Extracción y Procesamiento ---
 
-export async function extractDebtors(files: File[]): Promise<ExtractedDocument[]> {
+export async function extractDebtors(
+  files: File[],
+): Promise<ExtractedDocument[]> {
   const formData = new FormData();
-  files.forEach(file => {
+  files.forEach((file) => {
     formData.append("xml_files", file);
   });
 
@@ -77,17 +79,17 @@ export async function processOperation(
   frontendData: FrontendData,
   xmlFiles: File[],
   sustentos: File[],
-  additionalDocs: File[]
+  additionalDocs: File[],
 ): Promise<any> {
   const formData = new FormData();
-  formData.append('data_frontend', JSON.stringify(frontendData));
+  formData.append("data_frontend", JSON.stringify(frontendData));
 
-  xmlFiles.forEach(file => formData.append('xml_files', file));
-  sustentos.forEach(file => formData.append('pdf_files', file));
-  additionalDocs.forEach(file => formData.append('respaldo_files', file));
+  xmlFiles.forEach((file) => formData.append("xml_files", file));
+  sustentos.forEach((file) => formData.append("pdf_files", file));
+  additionalDocs.forEach((file) => formData.append("respaldo_files", file));
 
   const response = await fetch(`${API_BASE_URL}/robot/procesar-completa`, {
-    method: 'POST',
+    method: "POST",
     body: formData,
   });
 
@@ -105,15 +107,17 @@ export async function processOperation(
  */
 export async function getOperations(gmail: string): Promise<any> {
   const response = await fetch(`${API_BASE_URL}/operaciones/${gmail}`, {
-    method: 'GET',
+    method: "GET",
     headers: {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
     },
   });
 
   if (!response.ok) {
     const errorText = await response.text();
-    throw new Error(`Error al obtener operaciones: ${response.status} - ${errorText}`);
+    throw new Error(
+      `Error al obtener operaciones: ${response.status} - ${errorText}`,
+    );
   }
 
   return response.json();
@@ -123,20 +127,76 @@ export async function getOperations(gmail: string): Promise<any> {
  * Obtiene el detalle de las facturas de una operación específica.
  * @param idOperacion ID único de la operación
  */
-export async function getFacturasByOperation(idOperacion: string): Promise<any> {
-  const response = await fetch(`${API_BASE_URL}/operaciones/facturas/${idOperacion}`, {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
+export async function getFacturasByOperation(
+  idOperacion: string,
+): Promise<any> {
+  const response = await fetch(
+    `${API_BASE_URL}/operaciones/facturas/${idOperacion}`,
+    {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
     },
-  });
+  );
   if (!response.ok) {
     const errorText = await response.text();
-    throw new Error(`Error al obtener facturas: ${response.status} - ${errorText}`);
+    throw new Error(
+      `Error al obtener facturas: ${response.status} - ${errorText}`,
+    );
   }
   const data = await response.json();
   console.log(data);
   return data;
+}
+
+export async function getContactos(
+  ruc_deudor: string,
+): Promise<{ email: string }[]> {
+  const response = await fetch(`${API_BASE_URL}/contactos/${ruc_deudor}`, {
+    method: "GET",
+    headers: { "Content-Type": "application/json" },
+  });
+  if (!response.ok) return []; // Retornamos array vacío si no hay contactos o hay error 404
+  return response.json();
+}
+
+export async function addContacto(
+  ruc_deudor: string,
+  email: string,
+): Promise<any> {
+  const response = await fetch(
+    `${API_BASE_URL}/contactos/${ruc_deudor}/${email}`,
+    {
+      method: "POST",
+    },
+  );
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(
+      `Error al agregar contacto: ${response.status} - ${errorText}`,
+    );
+  }
+  return response.json();
+}
+
+export async function deleteContacto(
+  ruc_deudor: string,
+  email: string,
+): Promise<any> {
+  const response = await fetch(
+    `${API_BASE_URL}/contactos/${ruc_deudor}/${email}`,
+    {
+      method: "DELETE",
+    },
+  );
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(
+      `Error al eliminar contacto: ${response.status} - ${errorText}`,
+    );
+  }
+  return response.json();
 }
 
 // Exportación unificada para facilitar el uso en componentes
@@ -145,4 +205,7 @@ export const api = {
   processOperation,
   getOperations,
   getFacturasByOperation,
+  getContactos,
+  addContacto,
+  deleteContacto,
 };
