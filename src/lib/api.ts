@@ -15,6 +15,7 @@ export interface ExtractedDocument {
   client_ruc: string;
   valid: boolean;
   source_filename: string;
+  error?: string;
 }
 
 export interface FrontendData {

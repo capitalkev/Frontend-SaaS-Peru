@@ -45,6 +45,19 @@ export function NewOperationView({ onFinish }: { onFinish: () => void }) {
 
     try {
       const extractedData = await extractDebtors(xmlFiles);
+      
+      const invalidDocs = extractedData.filter((doc) => !doc.valid);
+
+      if (invalidDocs.length > 0) {
+        const errorMessages = invalidDocs
+          .map((doc) => `Archivo "${doc.source_filename}": ${doc.error}`)
+          .join('\n');
+        
+        setError(errorMessages);
+        setIsExtracting(false);
+        return;
+      }
+
       if (extractedData.length > 0) {
         setClientName(extractedData[0].client_name);
         setClientRuc(extractedData[0].client_ruc);

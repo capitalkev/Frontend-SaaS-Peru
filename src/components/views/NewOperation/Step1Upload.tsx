@@ -2,7 +2,7 @@ import * as React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Dropzone } from "@/components/ui/dropzone";
-import { FileText, X, ChevronRight } from "lucide-react";
+import { FileText, X, ChevronRight, AlertCircle } from "lucide-react";
 
 interface Step1Props {
   xmlFiles: File[];
@@ -57,10 +57,25 @@ export function Step1Upload({ xmlFiles, isExtracting, error, onDrop, onRemove, o
         )}
         
         {error && !isExtracting && (
-          <div className="bg-blue-50 border border-blue-200 text-blue-800 px-4 py-3 rounded-lg text-sm mt-4">
-              <strong className="font-bold">Aviso: </strong>
-              <span>{error}</span>
+          <div className="mt-6 rounded-xl border border-rose-200 bg-rose-50/80 shadow-sm overflow-hidden animate-in fade-in slide-in-from-top-2 duration-300">
+            <div className="flex items-center gap-2.5 px-4 py-3 bg-rose-100/50 border-b border-rose-100">
+              <AlertCircle className="h-5 w-5 text-rose-600" />
+              <h3 className="text-sm font-bold text-rose-800">
+                No se puede continuar. Hay problemas con los siguientes archivos:
+              </h3>
             </div>
+            <div className="p-4">
+              <ul className="space-y-2">
+                {/* Separamos el string por saltos de línea y lo renderizamos como lista */}
+                {error.split('\n').map((err, idx) => (
+                  <li key={idx} className="flex items-start gap-2.5 text-sm text-rose-700 font-medium">
+                    <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-rose-400 shrink-0"></span>
+                    <span className="leading-snug">{err}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
         )}
         
         <div className="mt-6 pt-4 border-t border-slate-100 flex justify-end">
