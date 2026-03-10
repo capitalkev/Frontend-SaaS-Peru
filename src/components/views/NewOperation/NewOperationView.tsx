@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { CheckCircle2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { processOperation, FrontendData, extractDebtors, api } from "@/lib/api";
+import { useAuth } from "@/context/AuthContext";
 
 import { Debtor } from "./types";
 import { Step1Upload } from "./Step1Upload";
@@ -10,6 +11,7 @@ import { Step2Config } from "./Step2Config";
 import { Step3Closure } from "./Step3Closure";
 
 export function NewOperationView({ onFinish }: { onFinish: () => void }) {
+  const { user } = useAuth();
   const [step, setStep] = React.useState(1);
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
@@ -127,7 +129,7 @@ export function NewOperationView({ onFinish }: { onFinish: () => void }) {
       notificaciones: {
         nombre_cliente: clientName,
         ruc_cliente: clientRuc,
-        correo_remitente: "kevin.tupac@capitalexpress.cl",
+        correo_remitente: user?.email || "sin_correo@dominio.com",
         envio_conjunto: bulkSend,
         emails_globales: globalEmails,
         deudores: debtors.map(d => ({ 
