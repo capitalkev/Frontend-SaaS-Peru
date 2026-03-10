@@ -7,6 +7,8 @@ import { OperationDetailView } from "@/components/views/OperationDetailView";
 import { ProfileView } from "@/components/views/ProfileView";
 import { LoginView } from "@/components/views/LoginView";
 import { useAuth } from "@/context/AuthContext";
+import { EnvioCartasView } from "@/components/views/EnvioCartasView";
+import { SunatView } from "@/components/views/Sunat/SunatView";
 
 // Componente guardián
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -27,6 +29,8 @@ export default function App() {
       case "/operaciones": return "Mis Operaciones";
       case "/nueva-operacion": return "Nueva Operación";
       case "/perfil": return "Perfil y Scoring";
+      case "/envio-cartas": return "Envío de Cartas de Cesión";
+      case "/sunat": return "Portal SUNAT";
       default: return undefined;
     }
   };
@@ -37,6 +41,8 @@ export default function App() {
     if (location.pathname === '/operaciones') return "operations";
     if (location.pathname === '/nueva-operacion') return "new-operation";
     if (location.pathname === '/perfil') return "profile";
+    if (location.pathname === '/envio-cartas') return "envio-cartas";
+    if (location.pathname === '/sunat') return "sunat";
     return "dashboard";
   };
 
@@ -45,7 +51,9 @@ export default function App() {
       "dashboard": "/",
       "operations": "/operaciones",
       "new-operation": "/nueva-operacion",
+      "sunat": "/sunat",
       "profile": "/perfil",
+      "envio-cartas": "/envio-cartas",
     };
     navigate(paths[route as keyof typeof paths] || "/");
   };
@@ -93,6 +101,22 @@ export default function App() {
         </ProtectedRoute>
       } />
 
+      <Route path="/envio-cartas" element={
+        <ProtectedRoute>
+          <Layout currentRoute="envio-cartas" onNavigate={handleNavigateSidebar} headerTitle="Envío de Cartas de Cesión">
+            <EnvioCartasView />
+          </Layout>
+        </ProtectedRoute>
+      } />
+
+      <Route path="/sunat" element={
+        <ProtectedRoute>
+          <Layout currentRoute="sunat" onNavigate={handleNavigateSidebar} headerTitle="Portal SUNAT">
+            <SunatView />
+          </Layout>
+        </ProtectedRoute>
+      } />
+      
       <Route path="/perfil" element={
         <ProtectedRoute>
           <Layout currentRoute="profile" onNavigate={handleNavigateSidebar} headerTitle="Perfil y Scoring">

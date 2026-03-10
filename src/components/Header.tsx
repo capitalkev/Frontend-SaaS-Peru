@@ -1,12 +1,14 @@
 import { Bell, Search, User } from "lucide-react";
 import { Button } from "./ui/button";
-import { Badge } from "./ui/badge";
+import { useAuth } from "@/context/AuthContext"; // <-- Importamos el contexto
 
 interface HeaderProps {
   title?: string;
 }
 
 export function Header({ title }: HeaderProps) {
+  const { user, dbUser } = useAuth(); // <-- Obtenemos el usuario
+
   const getGreeting = () => {
     const hour = new Date().getHours();
     if (hour < 12) return "Buenos días";
@@ -14,11 +16,16 @@ export function Header({ title }: HeaderProps) {
     return "Buenas noches";
   };
 
+  // Extraemos el primer nombre del displayName de Google, o usamos el email como fallback
+  const firstName = user?.displayName?.split(" ")[0] || user?.email?.split("@")[0] || "Usuario";
+  const fullName = user?.displayName || "Usuario";
+  const roleName = dbUser?.rol === "admin" ? "Administrador" : "Gestor Financiero";
+
   return (
     <header className="fixed top-0 right-0 left-0 md:left-72 z-30 h-20 px-8 flex items-center justify-between bg-white/80 backdrop-blur-md border-b border-slate-100/50">
       <div>
         <h1 className="text-2xl font-bold text-slate-900">
-          {title || `${getGreeting()}, Carlos`}
+          {title || `${getGreeting()}, ${firstName}`}
         </h1>
         <p className="text-sm text-slate-500 hidden md:block">
           Bienvenido de nuevo a tu panel financiero.
@@ -31,7 +38,7 @@ export function Header({ title }: HeaderProps) {
           <input
             type="text"
             placeholder="Buscar operación..."
-            className="h-10 w-64 rounded-full bg-slate-100 border-none pl-10 pr-4 text-sm focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
+            className="h-10 w-64 rounded-full bg-slate-100 border-none pl-10 pr-4 text-sm focus:ring-2 focus:ring-brand-500 outline-none transition-all"
           />
         </div>
 
@@ -42,11 +49,15 @@ export function Header({ title }: HeaderProps) {
 
         <div className="flex items-center gap-3 pl-4 border-l border-slate-200">
           <div className="text-right hidden md:block">
-            <p className="text-sm font-semibold text-slate-900">Carlos M.</p>
-            <p className="text-xs text-slate-500">Gerente Financiero</p>
+            <p className="text-sm font-semibold text-slate-900">{fullName}</p>
+            <p className="text-xs text-slate-500 capitalize">{roleName}</p>
           </div>
-          <div className="h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center border-2 border-white shadow-sm">
-            <User className="h-5 w-5 text-indigo-600" />
+          <div className="h-10 w-10 rounded-full bg-brand-50 flex items-center justify-center border-2 border-white shadow-sm overflow-hidden">
+            {user?.photoURL ? (
+              <img src={user.photoURL} alt="Avatar" className="h-full w-full object-cover" />
+            ) : (
+              <User className="h-5 w-5 text-brand-600" />
+            )}
           </div>
         </div>
       </div>
