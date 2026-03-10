@@ -1,5 +1,15 @@
 {
   "projects": {
-    "default": "verificador-chile"
-  }
+    "default": "defaul"
+  },
+  "targets": {
+    "operaciones-peru": {
+      "hosting": {
+        "app-peru": [
+          "operaciones-capitalexpress"
+        ]
+      }
+    }
+  },
+  "etags": {}
 }

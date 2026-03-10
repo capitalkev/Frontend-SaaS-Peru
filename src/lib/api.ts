@@ -1,6 +1,6 @@
 import { auth } from '@/config/firebase';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
+const API_BASE_URL = import.meta.env.VITE_API_URL || "https://robot-backend-api-598125168090.southamerica-west1.run.app";
 
 export interface ExtractedDocument {
   document_id: string;
