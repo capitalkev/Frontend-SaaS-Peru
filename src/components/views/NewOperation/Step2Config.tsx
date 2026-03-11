@@ -124,7 +124,7 @@ export function Step2Config({
                     <Dropzone 
                       small 
                       onDrop={(acceptedFiles) => updateDebtorSustentos(debtor.id, acceptedFiles)}
-                      label="Adjuntar Sustentos" 
+                      label="PDF del XML" 
                       className="h-24"
                     />
                     

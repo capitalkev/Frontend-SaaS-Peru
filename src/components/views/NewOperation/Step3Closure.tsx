@@ -77,7 +77,7 @@ export function Step3Closure({
             <label className="text-sm font-medium text-slate-700 mb-2 block">Documentos Adicionales (Opcional)</label>
             <Dropzone 
               onDrop={(acceptedFiles) => setAdditionalDocs(prev => [...prev, ...acceptedFiles])}
-              label="Contratos o Guías Generales" 
+              label="Abjuntos de respaldo" 
               className="h-32" 
             />
             {additionalDocs.length > 0 && (

@@ -8,14 +8,21 @@ import {
   ChevronRight,
   Menu,
   PanelLeftClose,
-  PanelLeftOpen
+  PanelLeftOpen,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion } from "motion/react";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "./ui/button";
 
-export type Route = "dashboard" | "operations" | "new-operation" | "sunat" | "profile" | "operation-detail" | "envio-cartas";
+export type Route =
+  | "dashboard"
+  | "operations"
+  | "new-operation"
+  | "sunat"
+  | "profile"
+  | "operation-detail"
+  | "envio-cartas";
 
 interface SidebarProps {
   currentRoute: Route;
@@ -24,7 +31,12 @@ interface SidebarProps {
   onToggleCollapse: () => void;
 }
 
-export function Sidebar({ currentRoute, onNavigate, isCollapsed, onToggleCollapse }: SidebarProps) {
+export function Sidebar({
+  currentRoute,
+  onNavigate,
+  isCollapsed,
+  onToggleCollapse,
+}: SidebarProps) {
   const menuItems = [
     { id: "dashboard", label: "Dashboard General", icon: LayoutDashboard },
     { id: "operations", label: "Mis Operaciones", icon: Briefcase },
@@ -33,28 +45,46 @@ export function Sidebar({ currentRoute, onNavigate, isCollapsed, onToggleCollaps
     { id: "sunat", label: "Portal SUNAT", icon: FileBarChart }, // Nueva sección
     { id: "profile", label: "Perfil y Scoring", icon: UserCircle },
   ] as const;
-  
+
   const { logout } = useAuth();
 
   return (
-    <aside className={cn(
-      "fixed left-0 top-0 z-40 h-screen bg-white border-r border-navy-100 hidden md:flex flex-col shadow-xl shadow-navy-200/20 transition-all duration-300 ease-in-out",
-      isCollapsed ? "w-20" : "w-72"
-    )}>
-      <div className={cn("p-6 pb-4 flex items-center", isCollapsed ? "justify-center" : "justify-between")}>
+    <aside
+      className={cn(
+        "fixed left-0 top-0 z-40 h-screen bg-white border-r border-navy-100 hidden md:flex flex-col shadow-xl shadow-navy-200/20 transition-all duration-300 ease-in-out",
+        isCollapsed ? "w-20" : "w-72",
+      )}
+    >
+      <div
+        className={cn(
+          "p-4 flex items-center",
+          isCollapsed ? "justify-center" : "justify-between",
+        )}
+      >
         {!isCollapsed && (
-          <span className="text-2xl font-bold text-navy-900 tracking-tight">
+          <span className="text-xl font-bold text-navy-900 tracking-tight">
             capital<span className="text-brand-600">express</span>
           </span>
         )}
-        <Button variant="ghost" size="icon" onClick={onToggleCollapse} className="text-slate-500 hover:bg-slate-100 rounded-lg shrink-0">
-          {isCollapsed ? <PanelLeftOpen className="h-5 w-5" /> : <PanelLeftClose className="h-5 w-5" />}
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={onToggleCollapse}
+          className="h-8 w-8 text-slate-500 hover:bg-slate-100 rounded-lg shrink-0"
+        >
+          {isCollapsed ? (
+            <PanelLeftOpen className="h-4 w-4" />
+          ) : (
+            <PanelLeftClose className="h-4 w-4" />
+          )}
         </Button>
       </div>
 
-      <nav className="flex-1 px-3 space-y-2 mt-4 overflow-y-auto hide-scrollbar">
+      <nav className="flex-1 px-3 space-y-1 mt-2 overflow-y-auto hide-scrollbar">
         {menuItems.map((item) => {
-          const isActive = currentRoute === item.id || (currentRoute === 'operation-detail' && item.id === 'operations');
+          const isActive =
+            currentRoute === item.id ||
+            (currentRoute === "operation-detail" && item.id === "operations");
           return (
             <button
               key={item.id}
@@ -65,7 +95,7 @@ export function Sidebar({ currentRoute, onNavigate, isCollapsed, onToggleCollaps
                 isCollapsed ? "justify-center" : "justify-start",
                 isActive
                   ? "bg-brand-50 text-brand-700 shadow-sm shadow-brand-100/50"
-                  : "text-navy-500 hover:bg-navy-50 hover:text-navy-900"
+                  : "text-navy-500 hover:bg-navy-50 hover:text-navy-900",
               )}
             >
               {isActive && (
@@ -78,13 +108,17 @@ export function Sidebar({ currentRoute, onNavigate, isCollapsed, onToggleCollaps
                 className={cn(
                   "h-5 w-5 transition-colors shrink-0",
                   !isCollapsed && "mr-3",
-                  isActive ? "text-brand-600" : "text-navy-400 group-hover:text-navy-600"
+                  isActive
+                    ? "text-brand-600"
+                    : "text-navy-400 group-hover:text-navy-600",
                 )}
               />
               {!isCollapsed && (
                 <>
                   <span className="truncate">{item.label}</span>
-                  {isActive && <ChevronRight className="ml-auto h-4 w-4 text-brand-400 opacity-50 shrink-0" />}
+                  {isActive && (
+                    <ChevronRight className="ml-auto h-4 w-4 text-brand-400 opacity-50 shrink-0" />
+                  )}
                 </>
               )}
             </button>
@@ -93,12 +127,12 @@ export function Sidebar({ currentRoute, onNavigate, isCollapsed, onToggleCollaps
       </nav>
 
       <div className="p-4 mt-auto border-t border-slate-100">
-        <button 
-          onClick={logout} 
+        <button
+          onClick={logout}
           title={isCollapsed ? "Cerrar Sesión" : undefined}
           className={cn(
             "flex items-center w-full px-2 py-2 text-navy-500 hover:text-rose-600 hover:bg-rose-50 rounded-lg cursor-pointer transition-colors",
-            isCollapsed ? "justify-center" : "justify-between"
+            isCollapsed ? "justify-center" : "justify-between",
           )}
         >
           <div className="flex items-center gap-2 text-sm font-medium">

@@ -14,7 +14,7 @@ interface DropzoneProps {
 export function Dropzone({
   onDrop,
   label = "Arrastra tus archivos aquí",
-  sublabel = "o haz clic para seleccionar",
+  sublabel = "Arrastra tus archivos aquí",
   className,
   small = false,
   accept,
