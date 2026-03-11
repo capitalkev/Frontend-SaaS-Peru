@@ -15,7 +15,7 @@ import { motion } from "motion/react";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "./ui/button";
 
-export type Route = "dashboard" | "operations" | "new-operation" | "sunat" | "profile" | "operation-detail";
+export type Route = "dashboard" | "operations" | "new-operation" | "sunat" | "profile" | "operation-detail" | "envio-cartas";
 
 interface SidebarProps {
   currentRoute: Route;
