@@ -79,8 +79,6 @@ export function SunatView() {
   };
 
   const handleBulkUpdate = async (status: string) => {
-    // Aquí podrías iterar sobre los selectedInvoiceKeys y hacer fetch (o usar un endpoint masivo si lo tuvieras)
-    // Por simplicidad, simularemos la limpieza:
     setSelectedInvoiceKeys([]);
     setRefreshTrigger((prev) => prev + 1);
     alert(`Se aplicarían el estado ${status} a las facturas seleccionadas.`);
@@ -161,45 +159,40 @@ export function SunatView() {
   }
 
   return (
-    <div className="space-y-4 flex flex-col h-[calc(100vh-6rem)]">
-      <div>
-        <h1 className="text-2xl font-bold text-slate-900 mb-4">
-          Portal de Ventas SUNAT
-        </h1>
-        <div className="flex flex-col md:flex-row gap-3">
-          <ClientFilter
-            clients={clients}
-            selected={selectedClientIds}
-            onChange={(ids) => {
-              setSelectedClientIds(ids);
+    <div className="flex flex-col h-[calc(100vh-8rem)] gap-3">
+      <div className="flex flex-wrap items-center gap-3 shrink-0">
+        <ClientFilter
+          clients={clients}
+          selected={selectedClientIds}
+          onChange={(ids) => {
+            setSelectedClientIds(ids);
+            setCurrentPage(1);
+          }}
+        />
+        <CurrencyFilter
+          selected={selectedCurrencies}
+          onChange={(curr) => {
+            setSelectedCurrencies(curr);
+            setCurrentPage(1);
+          }}
+        />
+        {isAdmin && (
+          <UserFilter
+            users={users}
+            selected={selectedUserEmails}
+            onChange={(emails) => {
+              setSelectedUserEmails(emails);
               setCurrentPage(1);
             }}
           />
-          <CurrencyFilter
-            selected={selectedCurrencies}
-            onChange={(curr) => {
-              setSelectedCurrencies(curr);
-              setCurrentPage(1);
-            }}
-          />
-          {isAdmin && (
-            <UserFilter
-              users={users}
-              selected={selectedUserEmails}
-              onChange={(emails) => {
-                setSelectedUserEmails(emails);
-                setCurrentPage(1);
-              }}
-            />
-          )}
-        </div>
+        )}
       </div>
 
       <div className="shrink-0">
         <KPIDashboard metrics={metrics} />
       </div>
 
-      <Card className="flex-1 border-slate-200 shadow-sm flex flex-col overflow-hidden bg-white min-h-0 relative">
+      <Card className="flex-1 border-slate-200 shadow-sm flex flex-col overflow-hidden bg-white min-h-[300px] relative">
         <div className="p-3 border-b border-slate-100 flex flex-col sm:flex-row justify-between items-center gap-3 bg-slate-50/50 shrink-0">
           <div className="flex items-center bg-white p-1 rounded-lg border border-slate-200 shadow-sm">
             <button

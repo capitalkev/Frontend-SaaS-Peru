@@ -15,7 +15,7 @@ export function ProfileView() {
   return (
     <div className="space-y-8">
       {/* Banner */}
-      <div className="relative h-48 rounded-2xl overflow-hidden bg-gradient-to-r from-indigo-900 via-violet-900 to-slate-900">
+      <div className="relative h-48 rounded-xl overflow-hidden bg-gradient-to-r from-indigo-900 via-violet-900 to-slate-900">
         <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '32px 32px' }}></div>
         <div className="absolute bottom-0 left-0 p-8 flex items-end gap-6">
           <div className="h-24 w-24 rounded-xl bg-white p-1 shadow-xl">

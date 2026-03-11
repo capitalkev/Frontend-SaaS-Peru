@@ -310,7 +310,7 @@ export function BulkActionToolbar({
 }) {
   const [status, setStatus] = useState(INVOICE_STATUSES[0]);
   return (
-    <div className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-4 z-50 animate-in slide-in-from-bottom-4">
+    <div className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-4 py-3 rounded-xl shadow-2xl flex items-center gap-4 z-50 animate-in slide-in-from-bottom-4">
       <span className="text-sm font-medium bg-slate-800 px-3 py-1 rounded-full">
         {count} seleccionadas
       </span>

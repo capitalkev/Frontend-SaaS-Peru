@@ -241,7 +241,7 @@ export function DashboardView() {
         {/* Right Column */}
         <div className="space-y-8">
           {/* Available Line (Moved here) */}
-          <div className="rounded-2xl bg-navy-900 p-6 text-white relative overflow-hidden shadow-xl shadow-navy-900/20">
+          <div className="rounded-xl bg-navy-900 p-6 text-white relative overflow-hidden shadow-xl shadow-navy-900/20">
             <div className="absolute top-0 right-0 -mt-8 -mr-8 h-32 w-32 rounded-full bg-brand-600 blur-3xl opacity-20"></div>
             <div className="absolute bottom-0 left-0 -mb-8 -ml-8 h-32 w-32 rounded-full bg-gold-500 blur-3xl opacity-20"></div>
             
