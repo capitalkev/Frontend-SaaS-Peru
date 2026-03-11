@@ -14,15 +14,16 @@ async function fetchWithAuth(url: string, firebaseUser: FirebaseUser) {
 }
 
 // --- Hook de Usuarios ---
-export function useSunatUsers(firebaseUser: FirebaseUser | null) {
+export function useSunatUsers(firebaseUser: FirebaseUser | null, isAdmin: boolean) {
   const [users, setUsers] = useState<UserOption[]>([]);
 
   useEffect(() => {
-    if (!firebaseUser) return;
+    if (!firebaseUser || !isAdmin) return;
+    
     fetchWithAuth(`${SUNAT_API_URL}/api/usuarios/no-admin`, firebaseUser)
       .then(data => setUsers(data.map((u: any) => ({ email: u.email, nombre: u.nombre, rol: u.rol }))))
       .catch(err => console.error("Error fetching users:", err));
-  }, [firebaseUser]);
+  }, [firebaseUser, isAdmin]);
 
   return { users };
 }

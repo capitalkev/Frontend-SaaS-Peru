@@ -1,8 +1,8 @@
 import React, { useState, useMemo } from "react";
 import { useAuth } from "@/context/AuthContext";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { LayoutGrid, List, AlertTriangle, Loader2, Clock } from "lucide-react";
+import { LayoutGrid, List, AlertTriangle, Loader2 } from "lucide-react";
 import { KPIDashboard } from "./components/KPIDashboard";
 import { useSunatUsers, useSunatClients, useSunatData } from "./hooks";
 import {
@@ -15,7 +15,7 @@ import {
   DetailedTable,
   GroupedTable,
   BulkActionToolbar,
-} from "./components/Tables"; // IMPORTAMOS LAS TABLAS
+} from "./components/Tables";
 import { SUNAT_API_URL } from "./constants";
 
 export function SunatView() {
@@ -35,7 +35,7 @@ export function SunatView() {
   const [selectedInvoiceKeys, setSelectedInvoiceKeys] = useState<string[]>([]);
   const [expandedGroupKey, setExpandedGroupKey] = useState<string | null>(null);
 
-  const { users } = useSunatUsers(firebaseUser);
+  const { users } = useSunatUsers(firebaseUser, isAdmin);
   const { clients } = useSunatClients(
     firebaseUser,
     selectedUserEmails,
@@ -84,7 +84,6 @@ export function SunatView() {
     alert(`Se aplicarían el estado ${status} a las facturas seleccionadas.`);
   };
 
-  // Preparamos datos para las tablas
   const invoicesFormatted = useMemo(
     () =>
       ventas.map((v) => ({
@@ -159,56 +158,67 @@ export function SunatView() {
   }
 
   return (
-    <div className="flex flex-col h-[calc(100vh-8rem)] gap-3">
-      <div className="flex flex-wrap items-center gap-3 shrink-0">
-        <ClientFilter
-          clients={clients}
-          selected={selectedClientIds}
-          onChange={(ids) => {
-            setSelectedClientIds(ids);
-            setCurrentPage(1);
-          }}
-        />
-        <CurrencyFilter
-          selected={selectedCurrencies}
-          onChange={(curr) => {
-            setSelectedCurrencies(curr);
-            setCurrentPage(1);
-          }}
-        />
-        {isAdmin && (
-          <UserFilter
-            users={users}
-            selected={selectedUserEmails}
-            onChange={(emails) => {
-              setSelectedUserEmails(emails);
-              setCurrentPage(1);
-            }}
-          />
-        )}
-      </div>
-
+    <div className="flex flex-col h-[calc(100vh-3rem)] gap-3">
+      
+      {/* 1. KPIs arriba, compactos */}
       <div className="shrink-0">
         <KPIDashboard metrics={metrics} />
       </div>
 
-      <Card className="flex-1 border-slate-200 shadow-sm flex flex-col overflow-hidden bg-white min-h-[300px] relative">
-        <div className="p-3 border-b border-slate-100 flex flex-col sm:flex-row justify-between items-center gap-3 bg-slate-50/50 shrink-0">
-          <div className="flex items-center bg-white p-1 rounded-lg border border-slate-200 shadow-sm">
-            <button
-              onClick={() => setViewMode("grouped")}
-              className={`flex items-center gap-2 px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${viewMode === "grouped" ? "bg-brand-50 text-brand-700" : "text-slate-500 hover:text-slate-900"}`}
-            >
-              <LayoutGrid className="w-4 h-4" /> Agrupada
-            </button>
-            <button
-              onClick={() => setViewMode("detailed")}
-              className={`flex items-center gap-2 px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${viewMode === "detailed" ? "bg-brand-50 text-brand-700" : "text-slate-500 hover:text-slate-900"}`}
-            >
-              <List className="w-4 h-4" /> Detallada
-            </button>
+      <Card className="flex-1 border-slate-200 shadow-sm flex flex-col overflow-hidden bg-white min-h-[300px] relative rounded-xl">
+        
+        {/* 2. Barra de herramientas: Botones de vista + Filtros alineados a los costados */}
+        <div className="p-3 border-b border-slate-100 flex flex-wrap justify-between items-center gap-3 bg-slate-50/50 shrink-0">
+          
+          <div className="flex flex-wrap items-center gap-3">
+            {/* Botones Agrupada/Detallada */}
+            <div className="flex items-center bg-white p-1 rounded-lg border border-slate-200 shadow-sm shrink-0">
+              <button
+                onClick={() => setViewMode("grouped")}
+                className={`flex items-center gap-2 px-3 py-1.5 text-xs font-bold rounded-md transition-colors ${viewMode === "grouped" ? "bg-brand-50 text-brand-700" : "text-slate-500 hover:text-slate-900"}`}
+              >
+                <LayoutGrid className="w-3.5 h-3.5" /> Agrupada
+              </button>
+              <button
+                onClick={() => setViewMode("detailed")}
+                className={`flex items-center gap-2 px-3 py-1.5 text-xs font-bold rounded-md transition-colors ${viewMode === "detailed" ? "bg-brand-50 text-brand-700" : "text-slate-500 hover:text-slate-900"}`}
+              >
+                <List className="w-3.5 h-3.5" /> Detallada
+              </button>
+            </div>
+
+            {/* Divisor Visual (Opcional, para separar botones de los filtros) */}
+            <div className="hidden sm:block h-6 w-px bg-slate-200 mx-1"></div>
+
+            {/* Filtros movidos aquí */}
+            <ClientFilter
+              clients={clients}
+              selected={selectedClientIds}
+              onChange={(ids) => {
+                setSelectedClientIds(ids);
+                setCurrentPage(1);
+              }}
+            />
+            <CurrencyFilter
+              selected={selectedCurrencies}
+              onChange={(curr) => {
+                setSelectedCurrencies(curr);
+                setCurrentPage(1);
+              }}
+            />
+            {isAdmin && (
+              <UserFilter
+                users={users}
+                selected={selectedUserEmails}
+                onChange={(emails) => {
+                  setSelectedUserEmails(emails);
+                  setCurrentPage(1);
+                }}
+              />
+            )}
           </div>
-          <div className="flex items-center gap-4">
+
+          <div className="flex items-center gap-3 shrink-0">
             <PeriodFilter
               filter={dateFilter}
               onChange={(f: any) => {
@@ -219,6 +229,7 @@ export function SunatView() {
           </div>
         </div>
 
+        {/* 3. Contenedor de la Tabla */}
         <div className="flex-1 overflow-auto bg-white">
           {loading && ventas.length === 0 ? (
             <div className="flex justify-center p-12">
@@ -271,8 +282,9 @@ export function SunatView() {
           )}
         </div>
 
-        <div className="p-4 border-t border-slate-100 flex items-center justify-between bg-slate-50/50 shrink-0">
-          <span className="text-sm font-medium text-slate-500">
+        {/* 4. Paginación */}
+        <div className="p-3 border-t border-slate-100 flex items-center justify-between bg-slate-50/50 shrink-0">
+          <span className="text-xs font-medium text-slate-500">
             Página {pagination.page} de {pagination.total_pages}{" "}
             <span className="text-slate-400 font-normal">
               ({pagination.total_items} facturas)
@@ -282,7 +294,7 @@ export function SunatView() {
             <Button
               variant="outline"
               size="sm"
-              className="bg-white"
+              className="bg-white h-8 text-xs"
               disabled={!pagination.has_previous}
               onClick={() => setCurrentPage((p) => p - 1)}
             >
@@ -291,7 +303,7 @@ export function SunatView() {
             <Button
               variant="outline"
               size="sm"
-              className="bg-white"
+              className="bg-white h-8 text-xs"
               disabled={!pagination.has_next}
               onClick={() => setCurrentPage((p) => p + 1)}
             >

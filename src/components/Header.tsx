@@ -1,13 +1,13 @@
 import { Bell, Search, User } from "lucide-react";
 import { Button } from "./ui/button";
-import { useAuth } from "@/context/AuthContext"; // <-- Importamos el contexto
+import { useAuth } from "@/context/AuthContext"; 
 
 interface HeaderProps {
   title?: string;
 }
 
 export function Header({ title }: HeaderProps) {
-  const { user, dbUser } = useAuth(); // <-- Obtenemos el usuario
+  const { user, dbUser } = useAuth(); 
 
   const getGreeting = () => {
     const hour = new Date().getHours();
@@ -16,7 +16,6 @@ export function Header({ title }: HeaderProps) {
     return "Buenas noches";
   };
 
-  // Extraemos el primer nombre del displayName de Google, o usamos el email como fallback
   const firstName =
     user?.displayName?.split(" ")[0] || user?.email?.split("@")[0] || "Usuario";
   const fullName = user?.displayName || "Usuario";
@@ -24,8 +23,9 @@ export function Header({ title }: HeaderProps) {
     dbUser?.rol === "admin" ? "Administrador" : "Gestor Financiero";
 
   return (
-    <header className="fixed top-0 right-0 left-0 md:left-72 z-30 h-16 px-6 flex items-center justify-between bg-white/80 backdrop-blur-md border-b border-slate-100/50">
-      {" "}
+    // Hemos cambiado "fixed top-0 left-0 md:left-72 z-30" por "w-full"
+    // Layout.tsx ya se encarga de hacer el header "fixed" y animar su ancho.
+    <header className="w-full h-16 px-6 flex items-center justify-between bg-white/80 backdrop-blur-md border-b border-slate-100/50">
       <div>
         <h1 className="text-2xl font-bold text-slate-900">
           {title || `${getGreeting()}, ${firstName}`}
@@ -58,7 +58,7 @@ export function Header({ title }: HeaderProps) {
             <p className="text-sm font-semibold text-slate-900">{fullName}</p>
             <p className="text-xs text-slate-500 capitalize">{roleName}</p>
           </div>
-          <div className="h-10 w-10 rounded-full bg-brand-50 flex items-center justify-center border-2 border-white shadow-sm overflow-hidden">
+          <div className="h-10 w-10 rounded-full bg-brand-50 flex items-center justify-center border-2 border-white shadow-sm overflow-hidden shrink-0">
             {user?.photoURL ? (
               <img
                 src={user.photoURL}

@@ -23,11 +23,11 @@ export function DetailedTable({ invoices, selectedKeys, onToggle, onSelectAll, o
               onChange={(e) => onSelectAll(e.target.checked)}
             />
           </th>
-          <th className="px-3 py-2 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Factura</th>
-          <th className="px-3 py-2 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Cliente / Deudor</th>
-          <th className="px-3 py-2 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Monto</th>
-          <th className="px-3 py-2 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Emisión</th>
-          <th className="px-3 py-2 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Estatus</th>
+          <th className="px-3 py-2 text-[10px] font-medium text-slate-500 uppercase tracking-wider">Factura</th>
+          <th className="px-3 py-2 text-[10px] font-medium text-slate-500 uppercase tracking-wider">Cliente / Deudor</th>
+          <th className="px-3 py-2 text-[10px] font-medium text-slate-500 uppercase tracking-wider">Monto</th>
+          <th className="px-3 py-2 text-[10px] font-medium text-slate-500 uppercase tracking-wider">Emisión</th>
+          <th className="px-3 py-2 text-[10px] font-medium text-slate-500 uppercase tracking-wider">Estatus</th>
         </tr>
       </thead>
       <tbody className="divide-y divide-slate-100">
@@ -45,23 +45,23 @@ export function DetailedTable({ invoices, selectedKeys, onToggle, onSelectAll, o
                 />
               </td>
               <td className="px-3 py-1.5 whitespace-nowrap">
-                <span className="text-xs font-medium text-slate-900">{inv.id}</span>
+                <span className="text-xs font-medium text-slate-700">{inv.id}</span>
               </td>
               <td className="px-3 py-1.5">
                 <div className="flex flex-col leading-tight">
-                  <span className="text-xs font-bold text-slate-800">{inv.clientName}</span>
+                  <span className="text-xs font-medium text-slate-700">{inv.clientName}</span>
                   <span className="text-[10px] text-slate-500 truncate max-w-[250px]">{inv.debtor}</span>
                 </div>
               </td>
               <td className="px-3 py-1.5 whitespace-nowrap">
-                <span className="text-xs font-mono font-medium text-slate-900">
+                <span className="text-xs font-mono font-medium text-slate-700">
                   {formatCurrency(inv.amount, inv.currency)}
                 </span>
                 {isZeroAmount && (
                   <span className="ml-1.5 text-[9px] text-slate-500 uppercase bg-slate-200 px-1 rounded">Anulada</span>
                 )}
               </td>
-              <td className="px-3 py-1.5 whitespace-nowrap text-xs text-slate-600">
+              <td className="px-3 py-1.5 whitespace-nowrap text-xs text-slate-500">
                 {inv.emissionDate}
               </td>
               <td className="px-3 py-1.5 whitespace-nowrap">
@@ -69,7 +69,7 @@ export function DetailedTable({ invoices, selectedKeys, onToggle, onSelectAll, o
                   disabled={isZeroAmount}
                   value={inv.status}
                   onChange={(e) => onStatusChange(inv.ventaId, inv.clientId, inv.id, e.target.value)}
-                  className="text-[11px] font-medium bg-white border border-slate-200 text-slate-700 rounded px-1.5 py-1 focus:ring-1 focus:ring-brand-500 outline-none disabled:cursor-not-allowed"
+                  className="text-[11px] font-medium bg-white border border-slate-200 text-slate-600 rounded px-1.5 py-1 focus:ring-1 focus:ring-brand-500 outline-none disabled:cursor-not-allowed"
                 >
                   {INVOICE_STATUSES.map((s) => (
                     <option key={s} value={s}>{s}</option>
@@ -91,10 +91,10 @@ export function GroupedTable({ groups, expandedKey, onExpand, selectedKeys, onGr
       <thead>
         <tr className="border-b border-slate-200 bg-slate-50/80">
           <th className="px-3 py-2 w-10 text-center"></th>
-          <th className="px-3 py-2 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Cliente</th>
-          <th className="px-3 py-2 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Deudor</th>
-          <th className="px-3 py-2 text-[10px] font-bold text-slate-500 uppercase tracking-wider text-center">Facturas</th>
-          <th className="px-3 py-2 text-[10px] font-bold text-slate-500 uppercase tracking-wider text-right">Monto Total</th>
+          <th className="px-3 py-2 text-[10px] font-medium text-slate-500 uppercase tracking-wider">Cliente</th>
+          <th className="px-3 py-2 text-[10px] font-medium text-slate-500 uppercase tracking-wider">Deudor</th>
+          <th className="px-3 py-2 text-[10px] font-medium text-slate-500 uppercase tracking-wider text-center">Facturas</th>
+          <th className="px-3 py-2 text-[10px] font-medium text-slate-500 uppercase tracking-wider text-right">Monto Total</th>
         </tr>
       </thead>
       <tbody>
@@ -114,18 +114,18 @@ export function GroupedTable({ groups, expandedKey, onExpand, selectedKeys, onGr
                     className="rounded border-slate-300 text-brand-600 focus:ring-brand-500 h-3.5 w-3.5"
                   />
                 </td>
-                <td className="px-3 py-1.5 font-bold text-xs text-slate-900 cursor-pointer" onClick={() => onExpand(group.key)}>
+                <td className="px-3 py-1.5 font-medium text-xs text-slate-700 cursor-pointer" onClick={() => onExpand(group.key)}>
                   {group.clientName}
                 </td>
-                <td className="px-3 py-1.5 text-slate-600 cursor-pointer text-xs" onClick={() => onExpand(group.key)}>
+                <td className="px-3 py-1.5 text-slate-500 cursor-pointer text-xs" onClick={() => onExpand(group.key)}>
                   {group.debtor}
                 </td>
                 <td className="px-3 py-1.5 text-center cursor-pointer" onClick={() => onExpand(group.key)}>
-                  <span className="bg-blue-50 text-blue-700 text-[10px] font-bold px-2 py-0.5 rounded-full border border-blue-100">
+                  <span className="bg-blue-50 text-blue-700 text-[10px] font-medium px-2 py-0.5 rounded-full border border-blue-100">
                     {group.invoiceCount}
                   </span>
                 </td>
-                <td className="px-3 py-1.5 text-right font-mono font-bold text-xs text-slate-900 cursor-pointer" onClick={() => onExpand(group.key)}>
+                <td className="px-3 py-1.5 text-right font-mono font-medium text-xs text-slate-700 cursor-pointer" onClick={() => onExpand(group.key)}>
                   <div className="flex items-center justify-end gap-2">
                     {formatCurrency(group.totalAmount, group.currency)}
                     {isExpanded ? <ChevronUp className="h-3 w-3 text-slate-400" /> : <ChevronDown className="h-3 w-3 text-slate-400" />}
@@ -140,10 +140,10 @@ export function GroupedTable({ groups, expandedKey, onExpand, selectedKeys, onGr
                         <thead>
                           <tr className="border-b border-slate-200">
                             <th className="pb-1 w-8"></th>
-                            <th className="pb-1 text-[10px] font-semibold text-slate-400">Factura</th>
-                            <th className="pb-1 text-[10px] font-semibold text-slate-400">Monto</th>
-                            <th className="pb-1 text-[10px] font-semibold text-slate-400">Emisión</th>
-                            <th className="pb-1 text-[10px] font-semibold text-slate-400">Estatus</th>
+                            <th className="pb-1 text-[10px] font-medium text-slate-400">Factura</th>
+                            <th className="pb-1 text-[10px] font-medium text-slate-400">Monto</th>
+                            <th className="pb-1 text-[10px] font-medium text-slate-400">Emisión</th>
+                            <th className="pb-1 text-[10px] font-medium text-slate-400">Estatus</th>
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100/50">
@@ -158,15 +158,15 @@ export function GroupedTable({ groups, expandedKey, onExpand, selectedKeys, onGr
                                   className="rounded border-slate-300 text-brand-600 focus:ring-brand-500 disabled:opacity-50 h-3 w-3"
                                 />
                               </td>
-                              <td className="py-1 text-[11px] font-medium text-slate-700">{inv.id}</td>
-                              <td className="py-1 text-[11px] font-mono text-slate-600">{formatCurrency(inv.amount, inv.currency)}</td>
-                              <td className="py-1 text-[11px] text-slate-500">{inv.emissionDate}</td>
+                              <td className="py-1 text-[11px] font-medium text-slate-600">{inv.id}</td>
+                              <td className="py-1 text-[11px] font-mono text-slate-500">{formatCurrency(inv.amount, inv.currency)}</td>
+                              <td className="py-1 text-[11px] text-slate-400">{inv.emissionDate}</td>
                               <td className="py-1">
                                 <select
                                   disabled={inv.montoNeto === 0}
                                   value={inv.status}
                                   onChange={(e) => onStatusChange(inv.ventaId, inv.clientId, inv.id, e.target.value)}
-                                  className="text-[10px] bg-white border border-slate-200 rounded px-1 py-0.5 outline-none"
+                                  className="text-[10px] bg-white border border-slate-200 rounded px-1 py-0.5 outline-none font-medium text-slate-600"
                                 >
                                   {INVOICE_STATUSES.map((s) => (
                                     <option key={s} value={s}>{s}</option>
@@ -200,16 +200,16 @@ export function BulkActionToolbar({ count, onClear, onApply }: { count: number; 
       <select
         value={status}
         onChange={(e) => setStatus(e.target.value as any)}
-        className="text-xs bg-slate-800 border-none text-white rounded-md px-2 py-1 outline-none focus:ring-1 focus:ring-brand-500"
+        className="text-xs font-medium bg-slate-800 border-none text-white rounded-md px-2 py-1 outline-none focus:ring-1 focus:ring-brand-500"
       >
         {INVOICE_STATUSES.map((s) => (
           <option key={s} value={s}>{s}</option>
         ))}
       </select>
-      <Button size="sm" className="bg-brand-600 hover:bg-brand-500 text-white rounded-md h-7 text-xs px-3" onClick={() => onApply(status)}>
+      <Button size="sm" className="bg-brand-600 hover:bg-brand-500 text-white rounded-md h-7 text-xs px-3 font-medium" onClick={() => onApply(status)}>
         <Send className="w-3 h-3 mr-1.5" /> Aplicar
       </Button>
-      <button onClick={onClear} className="text-xs text-slate-400 hover:text-white transition-colors">
+      <button onClick={onClear} className="text-xs font-medium text-slate-400 hover:text-white transition-colors">
         Cancelar
       </button>
     </div>
