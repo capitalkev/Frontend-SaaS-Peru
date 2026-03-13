@@ -1,4 +1,4 @@
-export const SUNAT_API_URL = 'https://crm-sunat-backend-598125168090.southamerica-west1.run.app';
+export const SUNAT_API_URL = 'http://localhost:8001';
 
 export const INVOICE_STATUSES = [
   'Sin gestión',

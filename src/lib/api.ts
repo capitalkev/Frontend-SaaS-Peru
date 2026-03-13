@@ -1,7 +1,7 @@
 import { auth } from '@/config/firebase';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || "https://robot-backend-api-598125168090.southamerica-west1.run.app";
-
+const FINANZAS_API_URL = import.meta.env.VITE_FINANZAS_API_URL || "http://localhost:8002";
 export interface ExtractedDocument {
   document_id: string;
   issue_date: string;
@@ -240,6 +240,52 @@ export async function deleteContacto(
   return response.json();
 }
 
+export async function procesarExcelCesion(file: File, fechaIngreso: string): Promise<any> {
+  const headers = await getAuthHeaders(true); 
+  const formData = new FormData();
+  formData.append("excel", file);
+  formData.append("fecha_ingreso_desde", fechaIngreso);
+
+  const response = await fetch(`${FINANZAS_API_URL}/finanzas/extract`, {
+    method: "POST",
+    headers,
+    body: formData,
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Error al procesar Excel: ${response.status} - ${errorText}`);
+  }
+
+  return response.json();
+}
+
+export async function enviarCartasCesion(
+  pdfs: File[], 
+  datosEnvio: any[], 
+  fechaCarpeta: string
+): Promise<any> {
+  const headers = await getAuthHeaders(true);
+  const formData = new FormData();
+
+  pdfs.forEach((file) => formData.append("pdfs", file));
+  formData.append("datos_envio", JSON.stringify(datosEnvio));
+  formData.append("fecha_carpeta", fechaCarpeta);
+
+  const response = await fetch(`${FINANZAS_API_URL}/finanzas/enviar-cartas`, {
+    method: "POST",
+    headers,
+    body: formData,
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Error al enviar cartas: ${response.status} - ${errorText}`);
+  }
+
+  return response.json();
+}
+
 // Exportación unificada para facilitar el uso en componentes
 export const api = {
   syncUser,
@@ -251,4 +297,6 @@ export const api = {
   getContactos,
   addContacto,
   deleteContacto,
+  procesarExcelCesion,
+  enviarCartasCesion,
 };
