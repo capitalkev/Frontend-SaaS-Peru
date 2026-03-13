@@ -10,7 +10,6 @@ const formatCurrency = (value: number, currency: "PEN" | "USD") => {
   return new Intl.NumberFormat("es-PE", { style: "currency", currency }).format(value);
 };
 
-// --- TABLA DETALLADA ---
 export function DetailedTable({ invoices, selectedKeys, onToggle, onSelectAll, onStatusChange }: any) {
   return (
     <table className="w-full text-left border-collapse min-w-[800px]">

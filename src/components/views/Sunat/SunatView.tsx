@@ -92,10 +92,8 @@ export function SunatView() {
         clientId: v.ruc,
         clientName: v.razon_social || v.ruc,
         debtor: v.apellidos_nombres_razon_social || "Sin nombre",
-        amount: parseFloat(v.monto_original || v.total_cp || 0),
-        montoNeto: parseFloat(
-          v.monto_neto ?? v.monto_original ?? v.total_cp ?? 0,
-        ),
+        amount: parseFloat(v.total_factura || 0),
+        montoNeto: parseFloat(v.monto_neto || 0),
         currency: v.moneda,
         emissionDate: v.fecha_emision,
         status: v.estado1 || "Sin gestión",
@@ -134,17 +132,26 @@ export function SunatView() {
     );
 
   if (error && ventas.length === 0) {
+    let mensajeSugerencia = "Hubo un problema al comunicarse con el servidor.";
+    
+    if (error.includes("Failed to fetch")) {
+      mensajeSugerencia = "El servidor no responde. Verifica que la URL del servidor sea correcta y que esté en funcionamiento.";
+    } else if (error.includes("401") || error.includes("403")) {
+      mensajeSugerencia = "Tu sesión puede haber expirado o no tienes los permisos necesarios. Intenta recargar la página.";
+    } else if (error.includes("500")) {
+      mensajeSugerencia = "Ocurrió un error interno en el servidor. Por favor, revisa los logs del backend.";
+    }
+
     return (
       <div className="flex items-center justify-center h-full">
         <Card className="border-rose-200 bg-rose-50 p-8 text-center max-w-md shadow-sm">
           <AlertTriangle className="h-10 w-10 text-rose-500 mx-auto mb-4" />
           <h2 className="text-xl font-bold text-rose-900 mb-2">
-            Error de conexión
+            Aviso del Sistema
           </h2>
-          <p className="text-rose-700 mb-2">{error}</p>
+          <p className="text-rose-700 font-medium mb-2">{error}</p>
           <p className="text-sm text-rose-600/80 mb-6">
-            Verifica que el servidor de SUNAT esté encendido o que no haya
-            problemas de CORS.
+            {mensajeSugerencia}
           </p>
           <Button
             variant="destructive"
