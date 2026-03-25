@@ -7,7 +7,7 @@ import { OperationDetailView } from "@/components/views/OperationDetailView";
 import { ProfileView } from "@/components/views/ProfileView";
 import { LoginView } from "@/components/views/LoginView";
 import { useAuth } from "@/context/AuthContext";
-import { EnvioCartasView } from "@/components/views/EnvioCartasView";
+import { EnvioCartasView } from "@/components/views/EnvioCartas/EnvioCartasView";
 import { SunatView } from "@/components/views/Sunat/SunatView";
 
 // Componente guardián

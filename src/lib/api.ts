@@ -1,7 +1,7 @@
 import { auth } from '@/config/firebase';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || "https://robot-backend-api-598125168090.southamerica-west1.run.app";
-const FINANZAS_API_URL = import.meta.env.VITE_FINANZAS_API_URL || "http://localhost:8002";
+const FINANZAS_API_URL = import.meta.env.VITE_FINANZAS_API_URL || "https://finanzas-backend-api-598125168090.southamerica-west1.run.app";
 export interface ExtractedDocument {
   document_id: string;
   issue_date: string;

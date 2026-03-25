@@ -19,16 +19,17 @@ function BaseSelector({ icon: Icon, label, isOpen, onToggle, children }: any) {
   useClickOutside(ref, () => isOpen && onToggle(false));
 
   return (
-    <div className="relative min-w-[180px]" ref={ref}>
+    <div className="relative min-w-[180px] max-w-[280px]" ref={ref}>
       <button
         onClick={() => onToggle(!isOpen)}
+        title={label}
         className="w-full flex items-center justify-between bg-white border border-slate-200 hover:border-brand-300 hover:ring-2 hover:ring-brand-500/10 px-3 py-1.5 rounded-lg text-xs transition-all shadow-sm"
       >
         <div className="flex items-center gap-2 overflow-hidden">
           <Icon className="h-4 w-4 text-slate-400 shrink-0" />
           <span className="font-medium text-slate-700 truncate">{label}</span>
         </div>
-        <ChevronDown className={cn("h-4 w-4 text-slate-400 transition-transform", isOpen && "rotate-180")} />
+        <ChevronDown className={cn("h-4 w-4 text-slate-400 shrink-0 transition-transform", isOpen && "rotate-180")} />
       </button>
       {isOpen && (
         <div className="absolute z-50 top-full left-0 mt-1 w-full min-w-[200px] bg-white rounded-lg shadow-lg border border-slate-100 overflow-hidden animate-in fade-in slide-in-from-top-2">

@@ -12,7 +12,8 @@ import {
   CheckCircle2, 
   XCircle, 
   AlertCircle,
-  FileText
+  FileText,
+  User // <-- Añadido
 } from 'lucide-react';
 import { 
   DropdownMenu, 
@@ -43,7 +44,8 @@ export const OperationsView = ({ onNavigateToDetail }: { onNavigateToDetail?: (i
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   
-  const { user } = useAuth();
+  const { user, dbUser } = useAuth();
+  const isAdmin = dbUser?.rol === "admin";
 
   useEffect(() => {
     const loadData = async () => {
@@ -63,7 +65,8 @@ export const OperationsView = ({ onNavigateToDetail }: { onNavigateToDetail?: (i
 
   const filteredOps = operations.filter(op => {
     return op.nombre_cliente?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-           op.codigo_operacion?.toLowerCase().includes(searchTerm.toLowerCase());
+           op.codigo_operacion?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+           op.nombre_ejecutivo?.toLowerCase().includes(searchTerm.toLowerCase());
   });
 
   return (
@@ -81,7 +84,7 @@ export const OperationsView = ({ onNavigateToDetail }: { onNavigateToDetail?: (i
         <div className="relative w-full max-w-md">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
           <Input 
-            placeholder="Buscar por cliente o código..." 
+            placeholder="Buscar por cliente, código o ejecutivo..." 
             className="pl-9 bg-white"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
@@ -95,7 +98,10 @@ export const OperationsView = ({ onNavigateToDetail }: { onNavigateToDetail?: (i
           <table className="w-full text-left border-collapse min-w-[800px]">
             <thead>
               <tr className="border-b border-slate-100">
-                <th className="px-6 py-5 text-xs font-semibold text-slate-500 uppercase tracking-wider w-2/5">Cliente / Deudor</th>
+                <th className={cn("px-6 py-5 text-xs font-semibold text-slate-500 uppercase tracking-wider", isAdmin ? "w-1/3" : "w-2/5")}>Cliente / Deudor</th>
+                {isAdmin && (
+                  <th className="px-6 py-5 text-xs font-semibold text-slate-500 uppercase tracking-wider">Ejecutivo</th>
+                )}
                 <th className="px-6 py-5 text-xs font-semibold text-slate-500 uppercase tracking-wider">Monto</th>
                 <th className="px-6 py-5 text-xs font-semibold text-slate-500 uppercase tracking-wider">Fecha</th>
                 <th className="px-6 py-5 text-xs font-semibold text-slate-500 uppercase tracking-wider">Estado</th>
@@ -106,7 +112,7 @@ export const OperationsView = ({ onNavigateToDetail }: { onNavigateToDetail?: (i
               {loading ? (
                 [1, 2, 3].map((n) => (
                   <tr key={n} className="animate-pulse">
-                    <td colSpan={5} className="px-6 py-6 bg-slate-50/30 h-20"></td>
+                    <td colSpan={isAdmin ? 6 : 5} className="px-6 py-6 bg-slate-50/30 h-20"></td>
                   </tr>
                 ))
               ) : filteredOps.map((op) => {
@@ -133,7 +139,21 @@ export const OperationsView = ({ onNavigateToDetail }: { onNavigateToDetail?: (i
                       </div>
                     </td>
 
-                    {/* Columna 2: Monto */}
+                    {/* Columna Extra: Ejecutivo (Solo Admin) */}
+                    {isAdmin && (
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center gap-2">
+                          <div className="h-7 w-7 rounded-full bg-slate-100 flex items-center justify-center text-slate-500">
+                            <User className="h-3.5 w-3.5" />
+                          </div>
+                          <span className="text-sm font-medium text-slate-700">
+                            {op.nombre_ejecutivo || "Sin Asignar"}
+                          </span>
+                        </div>
+                      </td>
+                    )}
+
+                    {/* Columna 2/3: Monto */}
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className={cn(
                         "text-sm font-medium",
@@ -143,7 +163,7 @@ export const OperationsView = ({ onNavigateToDetail }: { onNavigateToDetail?: (i
                       </span>
                     </td>
 
-                    {/* Columna 3: Fecha */}
+                    {/* Columna 3/4: Fecha */}
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex flex-col">
                         <span className="text-sm text-slate-700 font-medium">
@@ -155,7 +175,7 @@ export const OperationsView = ({ onNavigateToDetail }: { onNavigateToDetail?: (i
                       </div>
                     </td>
 
-                    {/* Columna 4: Estado */}
+                    {/* Columna 4/5: Estado */}
                     <td className="px-6 py-4 whitespace-nowrap">
                       <Badge variant="outline" className={cn("flex items-center gap-1.5 px-3 py-1 text-xs font-medium border shadow-none transition-colors", status.color)}>
                         <StatusIcon className="w-3.5 h-3.5" />
@@ -163,7 +183,7 @@ export const OperationsView = ({ onNavigateToDetail }: { onNavigateToDetail?: (i
                       </Badge>
                     </td>
 
-                    {/* Columna 5: Acciones */}
+                    {/* Columna 5/6: Acciones */}
                     <td className="px-6 py-4 text-right whitespace-nowrap">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
@@ -173,7 +193,6 @@ export const OperationsView = ({ onNavigateToDetail }: { onNavigateToDetail?: (i
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="w-40 bg-white rounded-xl shadow-lg border border-slate-100 p-1 z-50">
                           <DropdownMenuItem 
-                            // Pasamos el ID y el Código
                             onClick={() => onNavigateToDetail?.(op.id, op.codigo_operacion)} 
                             className="flex items-center gap-2 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 hover:text-brand-600 rounded-lg cursor-pointer outline-none transition-colors"
                           >

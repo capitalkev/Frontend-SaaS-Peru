@@ -121,11 +121,13 @@ export function Step2Config({
 
                   {/* Right: Dropzone & Email */}
                   <div className="space-y-4">
-                    <Dropzone 
+                    <Dropzone
+                      accept=".pdf,.PDF"
                       small 
                       onDrop={(acceptedFiles) => updateDebtorSustentos(debtor.id, acceptedFiles)}
-                      label="PDF del XML" 
                       className="h-24"
+                      label="PDF del XML" 
+                      sublabel="Subir el PDF correspondiente al XML para este deudor"
                     />
                     
                     {debtor.sustentos.length > 0 && (
