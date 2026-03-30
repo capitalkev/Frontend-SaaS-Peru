@@ -246,7 +246,7 @@ export function SunatView() {
             <GroupedTable
               groups={groupsFormatted}
               expandedKey={expandedGroupKey}
-              onExpand={setExpandedGroupKey}
+              onExpand={(key: string) => setExpandedGroupKey(prevKey => prevKey === key ? null : key)}
               selectedKeys={selectedInvoiceKeys}
               onGroupSelect={(
                 k: string,

@@ -42,7 +42,23 @@ export function useSunatClients(firebaseUser: FirebaseUser | null, selectedEmail
     }
 
     fetchWithAuth(url, firebaseUser)
-      .then(data => setClients(data.map((e: any) => ({ id: e.ruc, name: e.razon_social, ruc: e.ruc }))))
+      .then(data => {
+        // 1. Usamos un Map para deduplicar los clientes por RUC
+        const uniqueClientsMap = new Map();
+        
+        data.forEach((e: any) => {
+          if (!uniqueClientsMap.has(e.ruc)) {
+            uniqueClientsMap.set(e.ruc, { 
+              id: e.ruc, 
+              name: e.razon_social || "Sin Nombre",
+              ruc: e.ruc 
+            });
+          } else if (e.razon_social && uniqueClientsMap.get(e.ruc).name === "Sin Nombre") {
+             uniqueClientsMap.get(e.ruc).name = e.razon_social;
+          }
+        });
+        setClients(Array.from(uniqueClientsMap.values()));
+      })
       .catch(err => console.error("Error fetching clients:", err));
   }, [firebaseUser, selectedEmails, allUsersLength]);
 

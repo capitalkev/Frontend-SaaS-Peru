@@ -46,8 +46,16 @@ export function ClientFilter({ clients, selected, onChange }: { clients: ClientO
 
   const filtered = useMemo(() => {
     if (!search) return clients;
-    return clients.filter(c => c.name.toLowerCase().includes(search.toLowerCase()) || c.ruc.includes(search));
-  }, [clients, search]);
+    
+    const searchLower = search.trim().toLowerCase();
+    
+    return clients.filter(c => {
+      const nameValid = c.name ? String(c.name).toLowerCase() : "";
+      const rucValid = c.ruc ? String(c.ruc).toLowerCase() : "";
+      
+      return nameValid.includes(searchLower) || rucValid.includes(searchLower);
+    });
+  }, [clients, search])
 
   const label = selected.length === 0 || selected.length === clients.length
     ? "Todos los clientes"
