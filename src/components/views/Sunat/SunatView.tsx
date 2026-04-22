@@ -18,6 +18,21 @@ import {
 } from "./components/Tables";
 import { SUNAT_API_URL } from "./constants";
 
+const normalizeText = (value: unknown) => {
+  if (value === null || value === undefined) return "";
+  const text = String(value).trim();
+  if (!text || text === "undefined" || text === "null") return "";
+  return text;
+};
+
+const firstText = (...values: unknown[]) => {
+  for (const value of values) {
+    const text = normalizeText(value);
+    if (text) return text;
+  }
+  return "";
+};
+
 export function SunatView() {
   const { user: firebaseUser, dbUser, loading: authLoading } = useAuth();
   const isAdmin = dbUser?.rol === "admin";
@@ -29,8 +44,9 @@ export function SunatView() {
 
   const [viewMode, setViewMode] = useState<"grouped" | "detailed">("grouped");
   const [currentPage, setCurrentPage] = useState(1);
-  const [sortBy, setSortBy] = useState("fecha_emision");
-  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
+  // Ordenamiento SOLO de tabla (cliente). No afecta el orden del backend/paginación.
+  const [tableSortBy, setTableSortBy] = useState<string>("");
+  const [tableSortOrder, setTableSortOrder] = useState<"asc" | "desc">("asc");
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   const [selectedInvoiceKeys, setSelectedInvoiceKeys] = useState<string[]>([]);
@@ -50,22 +66,20 @@ export function SunatView() {
       selectedCurrencies,
       selectedUserEmails,
       currentPage,
-      sortBy,
-      sortOrder,
+      "fecha",
       clients.length,
       users.length,
       viewMode,
       refreshTrigger,
     );
 
-  const handleSort = (column: string) => {
-    if (sortBy === column) {
-      setSortOrder(sortOrder === "asc" ? "desc" : "asc");
-    } else {
-      setSortBy(column);
-      setSortOrder("desc");
+  const handleTableSort = (column: string) => {
+    if (tableSortBy === column) {
+      setTableSortOrder((prev: "asc" | "desc") => (prev === "asc" ? "desc" : "asc"));
+      return;
     }
-    setCurrentPage(1);
+    setTableSortBy(column);
+    setTableSortOrder("asc");
   };
 
   const handleStatusChange = async (
@@ -84,7 +98,7 @@ export function SunatView() {
         },
         body: JSON.stringify({ estado1: newStatus }),
       });
-      setRefreshTrigger((prev) => prev + 1);
+      setRefreshTrigger((prev: number) => prev + 1);
     } catch (err) {
       alert("Error al actualizar el estado");
     }
@@ -92,26 +106,55 @@ export function SunatView() {
 
   const handleBulkUpdate = async (status: string) => {
     setSelectedInvoiceKeys([]);
-    setRefreshTrigger((prev) => prev + 1);
+    setRefreshTrigger((prev: number) => prev + 1);
     alert(`Se aplicarían el estado ${status} a las facturas seleccionadas.`);
   };
 
   const invoicesFormatted = useMemo(
     () =>
-      ventas.map((v) => ({
-        id: `${v.serie_cdp || ""}-${v.nro_cp_inicial || v.id}`,
-        ventaId: v.id,
-        clientId: v.ruc,
-        clientName: v.razon_social || v.ruc,
-        debtor: v.apellidos_nombres_razon_social || "Sin nombre",
-        amount: parseFloat(v.total_factura || 0),
-        montoNeto: parseFloat(v.monto_neto || 0),
-        currency: v.moneda,
-        emissionDate: v.fecha_emision,
-        status: v.estado1 || "Sin gestión",
-        key: `${v.ruc}-${v.serie_cdp || ""}-${v.nro_cp_inicial || v.id}`,
-        tieneNotaCredito: v.tiene_nota_credito,
-      })),
+      ventas.map((v: any) => {
+        const ventaId = firstText(v.id, v.venta_id, v.id_venta, v.ventaId);
+        const clientId = firstText(v.ruc, v.ruc_empresa, v.rucEmpresa);
+        const clientName = firstText(v.razon_social, v.razon_social_empresa, v.empresa_razon_social, clientId);
+
+        const serie = firstText(v.serie_cdp, v.serie, v.serie_cp, v.serie_cpe);
+        const numero = firstText(
+          v.nro_cp_inicial,
+          v.nro_cp,
+          v.nro_cdp,
+          v.nro_cp_final,
+          v.numero,
+          v.nro,
+        );
+        const facturaId = serie && numero ? `${serie}-${numero}` : firstText(serie, numero, ventaId);
+
+        const debtor = firstText(
+          v.apellidos_nombres_razon_social,
+          v.razon_social_deudor,
+          v.deudor,
+          v.apellidos_nombres,
+          v.nombre_deudor,
+          v.nombre_deudor_razon_social,
+        ) || "Sin nombre";
+
+        const amountRaw = firstText(v.total_factura, v.total, v.monto_total, v.importe_total, 0);
+        const montoNetoRaw = firstText(v.monto_neto, v.neto, v.montoNeto, 0);
+
+        return {
+          id: facturaId || "S/N",
+          ventaId,
+          clientId,
+          clientName,
+          debtor,
+          amount: parseFloat(amountRaw),
+          montoNeto: parseFloat(montoNetoRaw),
+          currency: firstText(v.moneda, v.currency) as any,
+          emissionDate: firstText(v.fecha_emision, v.fecha, v.emission_date),
+          status: firstText(v.estado1, v.estado, "Sin gestión"),
+          key: `${clientId || "NA"}-${serie || "NA"}-${numero || "NA"}-${ventaId || "NA"}`,
+          tieneNotaCredito: Boolean(v.tiene_nota_credito ?? v.tieneNotaCredito),
+        };
+      }),
     [ventas],
   );
 
@@ -135,6 +178,26 @@ export function SunatView() {
     }, {});
     return Object.values(groupsMap);
   }, [invoicesFormatted]);
+
+  const invoicesSorted = useMemo(() => {
+    if (tableSortBy !== "amount") return invoicesFormatted;
+    const direction = tableSortOrder === "asc" ? 1 : -1;
+    return [...invoicesFormatted].sort((a, b) => {
+      const aValue = Number.isFinite(a.amount) ? a.amount : 0;
+      const bValue = Number.isFinite(b.amount) ? b.amount : 0;
+      return (aValue - bValue) * direction;
+    });
+  }, [invoicesFormatted, tableSortBy, tableSortOrder]);
+
+  const groupsSorted = useMemo(() => {
+    if (tableSortBy !== "totalAmount") return groupsFormatted;
+    const direction = tableSortOrder === "asc" ? 1 : -1;
+    return [...groupsFormatted].sort((a: any, b: any) => {
+      const aValue = Number.isFinite(a.totalAmount) ? a.totalAmount : 0;
+      const bValue = Number.isFinite(b.totalAmount) ? b.totalAmount : 0;
+      return (aValue - bValue) * direction;
+    });
+  }, [groupsFormatted, tableSortBy, tableSortOrder]);
 
   if (authLoading)
     return (
@@ -256,10 +319,13 @@ export function SunatView() {
             </div>
           ) : viewMode === "grouped" ? (
             <GroupedTable
-              groups={groupsFormatted}
+              groups={groupsSorted}
               expandedKey={expandedGroupKey}
               onExpand={(key: string) => setExpandedGroupKey(prevKey => prevKey === key ? null : key)}
               selectedKeys={selectedInvoiceKeys}
+              sortBy={tableSortBy}
+              sortOrder={tableSortOrder}
+              onSort={handleTableSort}
               onGroupSelect={(
                 k: string,
                 invKeys: string[],
@@ -280,11 +346,11 @@ export function SunatView() {
             />
           ) : (
             <DetailedTable
-              invoices={invoicesFormatted}
+              invoices={invoicesSorted}
               selectedKeys={selectedInvoiceKeys}
-              sortBy={sortBy}
-              sortOrder={sortOrder}
-              onSort={handleSort}
+              sortBy={tableSortBy}
+              sortOrder={tableSortOrder}
+              onSort={handleTableSort}
               onToggle={(k: string) =>
                 setSelectedInvoiceKeys((prev) =>
                   prev.includes(k) ? prev.filter((x) => x !== k) : [...prev, k],

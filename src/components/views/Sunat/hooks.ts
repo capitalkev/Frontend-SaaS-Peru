@@ -13,6 +13,60 @@ async function fetchWithAuth(url: string, firebaseUser: FirebaseUser) {
   return response.json();
 }
 
+let didDebugEmpresas = false;
+let didDebugVentas = false;
+
+function logSunatDebug(label: string, data: unknown) {
+  if (!import.meta.env.DEV) return;
+
+  const objectKeys = (value: unknown) => {
+    if (!value || typeof value !== "object") return [] as string[];
+    return Object.keys(value as Record<string, unknown>).slice(0, 60);
+  };
+
+  const sample = (() => {
+    if (Array.isArray(data)) return data[0];
+    if (data && typeof data === "object") {
+      const maybeItems = (data as any).items;
+      if (Array.isArray(maybeItems)) return maybeItems[0];
+    }
+    return data;
+  })();
+
+  console.groupCollapsed(`[SUNAT DEBUG] ${label}`);
+  if (Array.isArray(data)) {
+    console.log("root: array", { length: data.length });
+  } else {
+    console.log("root: object", { keys: objectKeys(data) });
+  }
+  console.log("sample keys:", objectKeys(sample));
+
+  if (sample && typeof sample === "object") {
+    const s: any = sample;
+    console.log("sample relevant fields:", {
+      id: s.id,
+      venta_id: s.venta_id,
+      id_venta: s.id_venta,
+      serie_cdp: s.serie_cdp,
+      serie: s.serie,
+      nro_cp_inicial: s.nro_cp_inicial,
+      nro_cp: s.nro_cp,
+      nro_cdp: s.nro_cdp,
+      nro_cp_final: s.nro_cp_final,
+      apellidos_nombres_razon_social: s.apellidos_nombres_razon_social,
+      razon_social_deudor: s.razon_social_deudor,
+      deudor: s.deudor,
+      razon_social: s.razon_social,
+      ruc: s.ruc,
+      fecha_emision: s.fecha_emision,
+      moneda: s.moneda,
+      total_factura: s.total_factura,
+      monto_neto: s.monto_neto,
+    });
+  }
+  console.groupEnd();
+}
+
 // --- Hook de Usuarios ---
 export function useSunatUsers(firebaseUser: FirebaseUser | null, isAdmin: boolean) {
   const [users, setUsers] = useState<UserOption[]>([]);
@@ -43,6 +97,10 @@ export function useSunatClients(firebaseUser: FirebaseUser | null, selectedEmail
 
     fetchWithAuth(url, firebaseUser)
       .then(data => {
+        if (!didDebugEmpresas) {
+          didDebugEmpresas = true;
+          logSunatDebug("GET /api/ventas/empresas", data);
+        }
         // 1. Usamos un Map para deduplicar los clientes por RUC
         const uniqueClientsMap = new Map();
         
@@ -139,6 +197,11 @@ export function useSunatData(
           fetchWithAuth(`${SUNAT_API_URL}/api/metricas/resumen?${buildParams(true)}`, firebaseUser),
           fetchWithAuth(`${SUNAT_API_URL}/api/ventas?${buildParams(false)}`, firebaseUser)
         ]);
+
+        if (!didDebugVentas) {
+          didDebugVentas = true;
+          logSunatDebug("GET /api/ventas", salesData);
+        }
 
         const calcMetrics = (data: any) => {
           const res = { PEN: data.PEN || {}, USD: data.USD || {} };

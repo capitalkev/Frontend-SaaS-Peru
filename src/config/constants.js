@@ -3,7 +3,7 @@
  */
 
 // URL del backend (desde variable de entorno)
-export const API_BASE_URL = import.meta.env.VITE_API_URL;
+export const API_BASE_URL = "https://robot-backend-api-598125168090.southamerica-west1.run.app";
 
 // Dominios de email permitidos
 export const ALLOWED_EMAIL_DOMAINS = [

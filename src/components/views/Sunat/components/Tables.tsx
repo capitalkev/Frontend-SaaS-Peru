@@ -27,7 +27,7 @@ export function DetailedTable({ invoices, selectedKeys, onToggle, onSelectAll, o
           <th className="px-3 py-2 text-[10px] font-medium text-slate-500 uppercase tracking-wider">Cliente / Deudor</th>
           <SortableHeader
             label="Monto"
-            value="total_factura"
+            value="amount"
             onSort={onSort}
             sortBy={sortBy}
             sortOrder={sortOrder}
@@ -51,6 +51,7 @@ export function DetailedTable({ invoices, selectedKeys, onToggle, onSelectAll, o
                   className="rounded border-slate-300 text-brand-600 focus:ring-brand-500 disabled:opacity-50 h-3.5 w-3.5"
                 />
               </td>
+              
               <td className="px-3 py-1.5 whitespace-nowrap">
                 <span className="text-xs font-medium text-slate-700">{inv.id}</span>
               </td>
@@ -116,7 +117,6 @@ export function GroupedTable({ groups, expandedKey, onExpand, selectedKeys, onGr
           const isExpanded = expandedKey === group.key;
           const groupInvKeys = group.invoices.filter((i: any) => i.montoNeto !== 0).map((i: any) => i.key);
           const allSelected = groupInvKeys.length > 0 && groupInvKeys.every((k: string) => selectedKeys.includes(k));
-
           return (
             <React.Fragment key={group.key}>
               <tr className={cn("border-b border-slate-100 hover:bg-slate-50 transition-colors", isExpanded && "bg-brand-50/30")}>
