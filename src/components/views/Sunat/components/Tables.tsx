@@ -5,12 +5,13 @@ import { INVOICE_STATUSES } from "../constants";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { SortableHeader } from "./SortableHeader";
 
 const formatCurrency = (value: number, currency: "PEN" | "USD") => {
   return new Intl.NumberFormat("es-PE", { style: "currency", currency }).format(value);
 };
 
-export function DetailedTable({ invoices, selectedKeys, onToggle, onSelectAll, onStatusChange }: any) {
+export function DetailedTable({ invoices, selectedKeys, onToggle, onSelectAll, onStatusChange, sortBy, sortOrder, onSort }: any) {
   return (
     <table className="w-full text-left border-collapse min-w-[800px]">
       <thead>
@@ -24,7 +25,14 @@ export function DetailedTable({ invoices, selectedKeys, onToggle, onSelectAll, o
           </th>
           <th className="px-3 py-2 text-[10px] font-medium text-slate-500 uppercase tracking-wider">Factura</th>
           <th className="px-3 py-2 text-[10px] font-medium text-slate-500 uppercase tracking-wider">Cliente / Deudor</th>
-          <th className="px-3 py-2 text-[10px] font-medium text-slate-500 uppercase tracking-wider">Monto</th>
+          <SortableHeader
+            label="Monto"
+            value="total_factura"
+            onSort={onSort}
+            sortBy={sortBy}
+            sortOrder={sortOrder}
+            className="text-right"
+          />
           <th className="px-3 py-2 text-[10px] font-medium text-slate-500 uppercase tracking-wider">Emisión</th>
           <th className="px-3 py-2 text-[10px] font-medium text-slate-500 uppercase tracking-wider">Estatus</th>
         </tr>
@@ -52,7 +60,7 @@ export function DetailedTable({ invoices, selectedKeys, onToggle, onSelectAll, o
                   <span className="text-[10px] text-slate-500 truncate max-w-[250px]">{inv.debtor}</span>
                 </div>
               </td>
-              <td className="px-3 py-1.5 whitespace-nowrap">
+              <td className="px-3 py-1.5 whitespace-nowrap text-right">
                 <span className="text-xs font-mono font-medium text-slate-700">
                   {formatCurrency(inv.amount, inv.currency)}
                 </span>
@@ -84,7 +92,7 @@ export function DetailedTable({ invoices, selectedKeys, onToggle, onSelectAll, o
 }
 
 // --- TABLA AGRUPADA ---
-export function GroupedTable({ groups, expandedKey, onExpand, selectedKeys, onGroupSelect, onInvoiceSelect, onStatusChange }: any) {
+export function GroupedTable({ groups, expandedKey, onExpand, selectedKeys, onGroupSelect, onInvoiceSelect, onStatusChange, sortBy, sortOrder, onSort }: any) {
   return (
     <table className="w-full text-left border-collapse min-w-[800px]">
       <thead>
@@ -93,7 +101,14 @@ export function GroupedTable({ groups, expandedKey, onExpand, selectedKeys, onGr
           <th className="px-3 py-2 text-[10px] font-medium text-slate-500 uppercase tracking-wider">Cliente</th>
           <th className="px-3 py-2 text-[10px] font-medium text-slate-500 uppercase tracking-wider">Deudor</th>
           <th className="px-3 py-2 text-[10px] font-medium text-slate-500 uppercase tracking-wider text-center">Facturas</th>
-          <th className="px-3 py-2 text-[10px] font-medium text-slate-500 uppercase tracking-wider text-right">Monto Total</th>
+          <SortableHeader
+            label="Monto Total"
+            value="totalAmount"
+            onSort={onSort}
+            sortBy={sortBy}
+            sortOrder={sortOrder}
+            className="text-right"
+          />
         </tr>
       </thead>
       <tbody>

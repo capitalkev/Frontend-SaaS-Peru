@@ -29,7 +29,8 @@ export function SunatView() {
 
   const [viewMode, setViewMode] = useState<"grouped" | "detailed">("grouped");
   const [currentPage, setCurrentPage] = useState(1);
-  const [sortBy, setSortBy] = useState("fecha");
+  const [sortBy, setSortBy] = useState("fecha_emision");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   const [selectedInvoiceKeys, setSelectedInvoiceKeys] = useState<string[]>([]);
@@ -50,11 +51,22 @@ export function SunatView() {
       selectedUserEmails,
       currentPage,
       sortBy,
+      sortOrder,
       clients.length,
       users.length,
       viewMode,
       refreshTrigger,
     );
+
+  const handleSort = (column: string) => {
+    if (sortBy === column) {
+      setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+    } else {
+      setSortBy(column);
+      setSortOrder("desc");
+    }
+    setCurrentPage(1);
+  };
 
   const handleStatusChange = async (
     ventaId: string,
@@ -270,6 +282,9 @@ export function SunatView() {
             <DetailedTable
               invoices={invoicesFormatted}
               selectedKeys={selectedInvoiceKeys}
+              sortBy={sortBy}
+              sortOrder={sortOrder}
+              onSort={handleSort}
               onToggle={(k: string) =>
                 setSelectedInvoiceKeys((prev) =>
                   prev.includes(k) ? prev.filter((x) => x !== k) : [...prev, k],
